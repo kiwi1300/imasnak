@@ -3,149 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Custom Snake Game</title>
+    <title>Customizable Google Snake Clone</title>
     <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --panel-color: #2d2d2d;
-            --text-color: #ffffff;
-            --accent-color: #4caf50;
-        }
-
         body {
-            margin: 0;
-            padding: 20px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: #4a752c;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            color: var(--accent-color);
-        }
-
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
             justify-content: center;
-            align-items: flex-start;
-            max-width: 1000px;
-            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+            box-sizing: border-box;
+            overflow-y: auto;
         }
 
-        .panel {
-            background: var(--panel-color);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        #game-settings {
-            flex: 1;
-            min-width: 280px;
+        /* Top Score Bar */
+        #score-bar {
+            background-color: #4e7a30;
+            width: 400px;
+            height: 50px;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            justify-content: space-around;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .setting-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        label {
-            font-size: 0.9rem;
+        .stat {
+            color: white;
+            font-size: 20px;
             font-weight: bold;
             display: flex;
-            justify-content: space-between;
-        }
-
-        input[type="range"], input[type="color"], select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 5px;
-            border: none;
-            background: #444;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        .checkbox-group {
-            flex-direction: row;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
-        .checkbox-group input {
+        /* Game Board */
+        #game-board {
+            width: 400px;
+            height: 400px;
+            background-color: #aad751;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* Grid Effect */
+        .grid-tile {
+            position: absolute;
             width: 20px;
             height: 20px;
         }
+        .dark-tile {
+            background-color: #a2d149;
+        }
 
-        #game-area {
+        /* Game Elements dynamically styled via JS */
+        .snake-head, .snake-body {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            z-index: 3;
+        }
+        .snake-body {
+            z-index: 2;
+            opacity: 0.85;
+        }
+
+        .food-item {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* Overlay Screens */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            justify-content: center;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            z-index: 10;
         }
 
-        canvas {
-            background: #111;
-            border: 4px solid #444;
-            border-radius: 5px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        #overlay h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 32px;
         }
 
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        button {
-            background-color: var(--accent-color);
+        #start-btn {
+            background-color: #4674e9;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
+            padding: 12px 30px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.2s;
-            width: 100%;
         }
 
-        button:hover {
-            background-color: #45a049;
+        #start-btn:hover {
+            background-color: #355ec4;
         }
 
-        .controls-hint {
-            text-align: center;
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 10px;
+        /* Customization Panel */
+        #custom-panel {
+            background-color: white;
+            width: 380px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .control-group select, .control-group input {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Custom Snake Engine</h1>
+    <div id="score-bar">
+        <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
+        <div class="stat">🏆 <span id="high-score">0</span></div>
+    </div>
 
-    <div class="container">
-        <div id="game-settings" class="panel">
-            <h3>Customization Menu</h3>
-            
-            <div class="setting-group">
-                <label>Snake Color</label>
-                <input type="color" id="snakeColor" value="#4caf50">
-            </div>
+    <div id="game-board">
+        <div id="overlay">
+            <h2 id="overlay-text">Snake Game</h2>
+            <button id="start-btn" onclick="startGame()">Play</button>
+        </div>
+    </div>
 
-            <div class="setting-group">
+    <div id="custom-panel">
+        <div class="control-group">
+            <label>Snake Color</label>
+            <select id="snakeColor" onchange="updateStyles()">
+                <option value="#4674e9">Classic Blue</option>
+                <option value="#e53935">Bright Red</option>
+                <option value="#ffb300">Gold Yellow</option>
+                <option value="#8e24aa">Purple Magic</option>
+                <option value="#ffffff">Ghost White</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Map Theme</label>
+            <select id="mapTheme" onchange="updateMapTheme()">
+                <option value="classic">Google Green</option>
+                <option value="dark">Midnight Dark</option>
+                <option value="desert">Desert Sand</option>
+                <option value="neon">Neon Cyber</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Food Type</label>
+            <select id="foodType" onchange="updateFoodIcon()">
+                <option value="🍎">Apple 🍎</option>
+                <option value="🍌">Banana 🍌</option>
+                <option value="🍩">Donut 🍩</option>
+                <option value="🍕">Pizza 🍕</option>
+                <option value="🐢">Turtle 🐢</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Speed</label>
+            <select id="gameSpeed" onchange="updateSpeed()">
+                <option value="140">Slow</option>
+                <option value="100" selected>Normal</option>
+                <option value="70">Fast</option>
+                <option value="45">Hyper</option>
+            </select>
+        </div>
+
+        <div class="control-group" style="grid-column: span 2;">
+            <label>Food Amount (Spawns on Next Round)</label>
+            <select id="foodAmount">
+                <option value="1">1 Item (Normal)</option>
+                <option value="3">3 Items</option>
+                <option value="5">5 Items</option>
+                <option value="10">10 Items (Chaos)</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('game-board
