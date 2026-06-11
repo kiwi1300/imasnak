@@ -17,7 +17,32 @@
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
-            transition: background-color 0.3s;
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+        /* Ambient Environment Decorations Box */
+        #theme-decorations {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-item {
+            position: absolute;
+            font-size: 28px;
+            opacity: 0.85;
+            animation: floatAmbient 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatAmbient {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-10px) rotate(8deg); }
         }
 
         /* Top Layout Box */
@@ -26,6 +51,8 @@
             gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
+            position: relative;
+            z-index: 1;
         }
 
         .main-column {
@@ -63,9 +90,11 @@
             height: 400px;
             background-color: #aad751;
             position: relative;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
+            overflow: hidden;
+            transition: background 0.5s ease;
         }
 
         /* Grid Effect */
@@ -73,6 +102,7 @@
             position: absolute;
             width: 20px;
             height: 20px;
+            transition: background-color 0.3s;
         }
 
         /* Game Elements */
@@ -237,6 +267,8 @@
 </head>
 <body>
 
+    <div id="theme-decorations"></div>
+
     <div class="game-container">
         
         <div class="side-panel" id="custom-panel">
@@ -268,22 +300,22 @@
                 <label>Theme & Environment</label>
                 <select id="mapTheme" onchange="updateMapTheme()">
                     <option value="classic">Google Green (Classic)</option>
-                    <option value="beach">Beach (Blue & Cyan)</option>
-                    <option value="desert">Desert (Sand & Clay)</option>
-                    <option value="candy">Candy (Pink & Purple)</option>
-                    <option value="forest">Deep Forest (Dark Greens)</option>
-                    <option value="magma">Magma Cave (Black & Orange)</option>
-                    <option value="space">Outer Space (Deep Navy & Purple)</option>
-                    <option value="snow">Snow Blizzard (Gray & White)</option>
-                    <option value="cyber">Cyber Neon (Dark Grey & Hot Pink)</option>
-                    <option value="retro">Retro Arcade (Monochrome Gray)</option>
+                    <option value="beach">🏖️ Turquoise Beach</option>
+                    <option value="desert">🏜️ Outback Desert</option>
+                    <option value="candy">🍬 Sweet Candy Kingdom</option>
+                    <option value="forest">🌲 Deep Grizzly Forest</option>
+                    <option value="magma">🌋 Volcanic Magma Cave</option>
+                    <option value="space">🚀 Deep Outer Space</option>
+                    <option value="snow">❄️ Arctic Ice Blizzard</option>
+                    <option value="cyber">⚡ Neon Cyber Grid</option>
+                    <option value="retro">🕹️ Old-School Arcade</option>
                 </select>
             </div>
 
             <div class="control-group">
                 <label>Food Item</label>
                 <select id="foodType" onchange="updateFoodIcon()">
-                    </select>
+                </select>
             </div>
 
             <div class="control-group">
@@ -327,7 +359,7 @@
         <div class="side-panel">
             <h3>Leaderboard</h3>
             <ul id="leaderboard-list">
-                </ul>
+            </ul>
         </div>
 
     </div>
@@ -343,6 +375,7 @@
         const nameInputBox = document.getElementById('name-input-box');
         const playerNameInput = document.getElementById('player-name');
         const leaderboardList = document.getElementById('leaderboard-list');
+        const decorContainer = document.getElementById('theme-decorations');
 
         // Form elements
         const optSnakeColor = document.getElementById('snakeColor');
@@ -365,35 +398,78 @@
         let gameRunning = false;
         let changingDirection = false;
 
-        // 10 Themes
+        // Enhanced themes with complete world design architectures
         const themes = {
-            classic: { body: '#4a752c', light: '#aad751', dark: '#a2d149' },
-            beach: { body: '#0077b6', light: '#90e0ef', dark: '#00b4d8' },
-            desert: { body: '#6e4f3a', light: '#e6c280', dark: '#d9b473' },
-            candy: { body: '#7209b7', light: '#f72585', dark: '#b5179e' },
-            forest: { body: '#132a13', light: '#3f5e5a', dark: '#2f4858' },
-            magma: { body: '#1a0f0f', light: '#d94e34', dark: '#ba2d13' },
-            space: { body: '#03001e', light: '#7303c0', dark: '#ec38bc' },
-            snow: { body: '#495057', light: '#f8f9fa', dark: '#e9ecef' },
-            cyber: { body: '#212529', light: '#343a40', dark: '#ff007f' },
-            retro: { body: '#111111', light: '#aaaaaa', dark: '#888888' }
+            classic: { 
+                bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30',
+                decorations: ["🌱", "🌿", "🍀", "☘️"]
+            },
+            beach: { 
+                bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', 
+                boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', 
+                light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6',
+                decorations: ["🦀", "🐚", "🏖️", "🏝️", "🌊", "🦩"]
+            },
+            desert: { 
+                bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', 
+                boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', 
+                light: '#e6c280', dark: '#d9b473', header: '#8c3b03',
+                decorations: ["🌵", "🐫", "🦅", "💀", "🏜️"]
+            },
+            candy: { 
+                bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', 
+                boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', 
+                light: '#ffeef3', dark: '#ffccd8', header: '#7209b7',
+                decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🦄"]
+            },
+            forest: { 
+                bg: 'linear-gradient(to bottom, #132a13, #432818)', 
+                boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', 
+                light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e',
+                decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🐾", "🪵"]
+            },
+            magma: { 
+                bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', 
+                boardBg: 'linear-gradient(45deg, #111111, #260500)', 
+                light: '#ba2d13', dark: '#4a0e05', header: '#e05300',
+                decorations: ["🌋", "🔥", "☄️", "💀", "👿"]
+            },
+            space: { 
+                bg: 'radial-gradient(circle, #2c003e 0%, #050014 100%)', 
+                boardBg: 'linear-gradient(to bottom, #03001e, #1f003a)', 
+                light: '#7303c0', dark: '#3a0066', header: '#240046',
+                decorations: ["🚀", "🪐", "👽", "⭐️", "☄️", "🛰️"]
+            },
+            snow: { 
+                bg: 'linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%)', 
+                boardBg: 'linear-gradient(to bottom, #ffffff, #e9ecef)', 
+                light: '#f8f9fa', dark: '#dee2e6', header: '#495057',
+                decorations: ["❄️", "☃️", "🐧", "🐻‍❄️", "🏔️"]
+            },
+            cyber: { 
+                bg: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)', 
+                boardBg: '#1e1b4b', light: '#312e81', dark: '#ff007f', header: '#4338ca',
+                decorations: ["⚡", "👾", "🤖", "🌐", "🥽"]
+            },
+            retro: { 
+                bg: '#000000', boardBg: '#111111', light: '#222222', dark: '#0a0a0a', header: '#333333',
+                decorations: ["🕹️", "👾", "📀", "🏰", "📢"]
+            }
         };
 
-        // Expanded Food Categories (Over 200 items total)
         const foodCategories = {
-            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥"," Kiwi 🥝","🍅","橄榄 🫒"],
-            "Vegetables": ["🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🧄","🧅","🥔","🍠","🍄"," peanuts 🥜", "栗子 🌰"],
-            "Bakery & Breakfast": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞"," waffle 🧇","🥓"],
-            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🌮","🌯","🫔","🥗","🍿","🍱","🍘","🍙","🍚","🍛","🍜","🍝","🍢"," sushi 🍣","🍤","🦪"," dumplings 🥟","🍲","🫕","🍳"],
-            "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮"," honey 🍯","🍩","🍪","🍧","🍨","🍦"],
+            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🫒"],
+            "Vegetables": ["🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🧄","🧅","🥔","🍠","🍄","🥜","🌰"],
+            "Bakery & Breakfast": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞","🧇","🥓"],
+            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🌮","🌯","🫔","🥗","🍿","🍱","🍘","🍙","🍚","🍛","🍜","🍝","🍢","🍣","🍤","🦪","🥟","🍲","🫕"],
+            "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🍩","🍪","🍧","🍨","🍦"],
             "Drinks": ["🍼","🥛","☕","🫖","🍵","🥤","🧃","🧉","🍺","🍷","🥂","🍹"],
-            "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚"," parrot 🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐵","🐔"],
+            "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚","🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮"],
             "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
             "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","👑","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
             "Flags & Misc": ["🏁","🚩","🎌","🏴‍☠️","💘","💝","💖","💗","💓","💞","💕","💟","❣️","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎"]
         };
 
-        // Populate Food Selector with structured categories
         function populateFoodDropdown() {
             let totalCount = 1;
             for (const [category, items] of Object.entries(foodCategories)) {
@@ -422,17 +498,41 @@
                     tile.classList.add('grid-tile');
                     tile.style.left = `${col * tileSize}px`;
                     tile.style.top = `${row * tileSize}px`;
+                    
                     tile.style.backgroundColor = ((row + col) % 2 !== 0) ? currentTheme.dark : currentTheme.light;
                     board.insertBefore(tile, board.firstChild);
                 }
             }
         }
 
+        // Spawns environmental static items around the viewport canvas
+        function spawnThemeDecorations(themeKey) {
+            decorContainer.innerHTML = '';
+            const activeTheme = themes[themeKey];
+            
+            for (let i = 0; i < 16; i++) {
+                const item = document.createElement('div');
+                item.classList.add('ambient-item');
+                item.textContent = activeTheme.decorations[Math.floor(Math.random() * activeTheme.decorations.length)];
+                
+                item.style.left = `${Math.random() * 92}%`;
+                item.style.top = `${Math.random() * 92}%`;
+                item.style.fontSize = `${24 + Math.random() * 16}px`;
+                item.style.animationDelay = `${Math.random() * 2}s`;
+                
+                decorContainer.appendChild(item);
+            }
+        }
+
         function updateMapTheme() {
             const currentTheme = themes[optMapTheme.value];
-            document.body.style.backgroundColor = currentTheme.body;
-            document.getElementById('score-bar').style.backgroundColor = currentTheme.dark;
+            
+            document.body.style.background = currentTheme.bg;
+            board.style.background = currentTheme.boardBg;
+            document.getElementById('score-bar').style.backgroundColor = currentTheme.header;
+            
             createGrid();
+            spawnThemeDecorations(optMapTheme.value);
         }
 
         function updateStyles() {
