@@ -17,7 +17,7 @@
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
-            transition: background 0.5s ease;
+            transition: background 0.5s ease, color 0.3s ease;
             position: relative;
         }
 
@@ -35,7 +35,7 @@
 
         .ambient-item {
             position: absolute;
-            font-size: 42px;
+            font-size: 36px;
             opacity: 0.85;
             animation: floatAmbient 4s ease-in-out infinite alternate;
         }
@@ -45,12 +45,12 @@
             100% { transform: translateY(-10px) rotate(8deg); }
         }
 
-        /* Top Layout Box - Expanded layout width to comfortably fit up to a 900px board */
+        /* Top Layout Box */
         .game-container {
             display: flex;
-            gap: 35px;
-            width: 90vw;
-            min-width: 1300px;
+            gap: 30px;
+            width: 85vw;
+            min-width: 1200px;
             justify-content: center;
             align-items: flex-start;
             position: relative;
@@ -62,31 +62,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Flex basis will adjust via JS logic depending on chosen map width */
-            transition: flex 0.3s ease;
+            flex: 0 0 600px;
         }
 
         /* Top Score Bar */
         #score-bar {
             background-color: #4e7a30;
             width: 600px;
-            height: 70px;
+            height: 65px;
             display: flex;
             align-items: center;
             justify-content: space-around;
-            border-top-left-radius: 14px;
-            border-top-right-radius: 14px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s, width 0.3s ease;
+            transition: background-color 0.3s;
         }
 
         .stat {
             color: white;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         /* Game Board */
@@ -96,10 +95,10 @@
             background-color: #aad751;
             position: relative;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            border-bottom-left-radius: 14px;
-            border-bottom-right-radius: 14px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
             overflow: hidden;
-            transition: background 0.5s ease, width 0.3s ease, height 0.3s ease;
+            transition: background 0.5s ease;
         }
 
         /* Grid Effect */
@@ -149,15 +148,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-bottom-left-radius: 14px;
-            border-bottom-right-radius: 14px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
             z-index: 10;
         }
 
         #overlay h2 {
             color: white;
             margin: 0 0 15px 0;
-            font-size: 52px;
+            font-size: 46px;
         }
 
         #name-input-box {
@@ -165,14 +164,14 @@
             flex-direction: column;
             align-items: center;
             gap: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         #player-name {
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             border: none;
-            font-size: 22px;
+            font-size: 20px;
             text-align: center;
         }
 
@@ -180,39 +179,41 @@
             background-color: #4674e9;
             color: white;
             border: none;
-            padding: 18px 45px;
-            font-size: 24px;
+            padding: 15px 40px;
+            font-size: 22px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         #start-btn:hover { background-color: #355ec4; }
 
-        /* Side panels styled cleanly with robust structural spacing */
+        /* Side panels - Themed transition options */
         .side-panel {
             background-color: white;
+            color: #333;
             flex: 1;
-            padding: 30px;
-            border-radius: 14px;
+            padding: 25px;
+            border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease, border 0.5s ease;
         }
 
         .side-panel h3 { 
             margin-top: 0; 
-            color: #333; 
-            font-size: 26px;
-            border-bottom: 3px solid #eee; 
-            padding-bottom: 10px;
+            font-size: 24px;
+            border-bottom: 3px solid rgba(0,0,0,0.1); 
+            padding-bottom: 8px;
+            transition: border-color 0.5s ease;
         }
 
         /* Customization Grid */
         #custom-panel {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
         }
 
         .control-group {
@@ -221,37 +222,40 @@
         }
 
         .control-group label {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
-            color: #555;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
+            opacity: 0.8;
         }
 
-        .control-group select, .control-group input[type="text"] {
-            padding: 12px;
-            border-radius: 8px;
+        .control-group select, .control-group input[type="text"], #boardSizeSelect {
+            padding: 10px;
+            border-radius: 6px;
             border: 1px solid #ccc;
-            font-size: 18px;
+            font-size: 16px;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
         }
 
         .color-picker-wrapper {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .color-picker-wrapper input[type="color"] {
             border: none;
-            width: 60px;
-            height: 45px;
+            width: 50px;
+            height: 40px;
             cursor: pointer;
             padding: 0;
             background: none;
         }
 
         .color-picker-wrapper span {
-            font-size: 18px;
+            font-size: 16px;
         }
 
         /* Leaderboard styling */
@@ -264,15 +268,45 @@
         #leaderboard-list li {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px dashed #eee;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
             font-weight: 500;
-            font-size: 20px;
+            font-size: 18px;
+            transition: border-color 0.5s ease;
         }
-        #leaderboard-list li:first-child { color: gold; font-weight: bold; font-size: 22px; }
+        #leaderboard-list li:first-child { color: gold; font-weight: bold; font-size: 20px; }
+
+        /* Bottom Menu Control Bar */
+        .bottom-controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .size-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        .size-panel label {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
 
         /* Mobile Breakout fallback if window is narrow */
-        @media (max-width: 1320px) {
+        @media (max-width: 1220px) {
             .game-container {
                 width: 95vw;
                 min-width: auto;
@@ -294,15 +328,6 @@
         
         <div class="side-panel" id="custom-panel">
             <h3>Customization</h3>
-
-            <div class="control-group">
-                <label>Board Size</label>
-                <select id="boardSize" onchange="updateBoardSize()">
-                    <option value="600">Medium (600x600)</option>
-                    <option value="750">Large (750x750)</option>
-                    <option value="900" selected>Giant (900x900)</option>
-                </select>
-            </div>
             
             <div class="control-group">
                 <label>Snake Color (Color Wheel)</label>
@@ -345,4 +370,141 @@
             <div class="control-group">
                 <label>Food Item</label>
                 <select id="foodType" onchange="updateFoodIcon()">
-                </select
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Game Speed</label>
+                <select id="gameSpeed" onchange="updateSpeed()">
+                    <option value="150">Slow</option>
+                    <option value="100" selected>Normal</option>
+                    <option value="70">Fast</option>
+                    <option value="45">Hyper</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Food Count</label>
+                <select id="foodAmount">
+                    <option value="1">1 (Standard)</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main-column">
+            <div id="score-bar">
+                <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
+                <div class="stat">🏆 <span id="high-score">0</span></div>
+            </div>
+
+            <div id="game-board">
+                <div id="overlay">
+                    <h2 id="overlay-text">Snake Game</h2>
+                    <div id="name-input-box">
+                        <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
+                        <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
+                    </div>
+                    <button id="start-btn" onclick="startGame()">Play</button>
+                </div>
+            </div>
+
+            <div class="bottom-controls">
+                <div class="side-panel size-panel" id="size-panel">
+                    <label for="boardSizeSelect">Board Layout Size Layout:</label>
+                    <select id="boardSizeSelect" onchange="changeBoardSize()">
+                        <option value="15">Small (15x15)</option>
+                        <option value="20" selected>Normal (20x20)</option>
+                        <option value="25">Large (25x25)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel" id="leaderboard-panel">
+            <h3>Leaderboard</h3>
+            <ul id="leaderboard-list">
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        const board = document.getElementById('game-board');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const scoreIconEl = document.getElementById('score-icon');
+        const overlay = document.getElementById('overlay');
+        const overlayText = document.getElementById('overlay-text');
+        const startBtn = document.getElementById('start-btn');
+        const nameInputBox = document.getElementById('name-input-box');
+        const playerNameInput = document.getElementById('player-name');
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const decorContainer = document.getElementById('theme-decorations');
+
+        // Panels for theme styling upgrades
+        const panelCustom = document.getElementById('custom-panel');
+        const panelLeaderboard = document.getElementById('leaderboard-panel');
+        const panelSize = document.getElementById('size-panel');
+
+        // Form elements
+        const optSnakeColor = document.getElementById('snakeColor');
+        const colorHexSpan = document.getElementById('colorHex');
+        const optAccessory = document.getElementById('snakeAccessory');
+        const optMapTheme = document.getElementById('mapTheme');
+        const optFoodType = document.getElementById('foodType');
+        const optGameSpeed = document.getElementById('gameSpeed');
+        const optFoodAmount = document.getElementById('foodAmount');
+        const optBoardSize = document.getElementById('boardSizeSelect');
+
+        // Dynamic Sizing Management Variable Calculations
+        let gridCount = parseInt(optBoardSize.value);
+        let tileSize = 600 / gridCount;
+
+        let snake = [];
+        let foodList = [];
+        let dx = tileSize;
+        let dy = 0;
+        let score = 0;
+        let gameInterval;
+        let gameRunning = false;
+        let changingDirection = false;
+
+        const themes = {
+            classic: { 
+                bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30',
+                panelBg: '#ffffff', panelText: '#333333', selectBg: '#ffffff', selectText: '#333333', border: '#eeeeee',
+                decorations: ["🌱", "🌿", "🌲"]
+            },
+            beach: { 
+                bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', 
+                boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', 
+                light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6',
+                panelBg: '#fdf8f2', panelText: '#0077b6', selectBg: '#ffffff', selectText: '#005f73', border: '#fed9b7',
+                decorations: ["🦀", "🐚", "🌊"]
+            },
+            desert: { 
+                bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', 
+                boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', 
+                light: '#e6c280', dark: '#d9b473', header: '#8c3b03',
+                panelBg: '#f4ede2', panelText: '#5c2c04', selectBg: '#ffffff', selectText: '#8c3b03', border: '#d9b473',
+                decorations: ["🌵", "🐫", "💀"]
+            },
+            candy: { 
+                bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', 
+                boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', 
+                light: '#ffeef3', dark: '#ffccd8', header: '#7209b7',
+                panelBg: '#fff0f5', panelText: '#7209b7', selectBg: '#ffffff', selectText: '#ff70a6', border: '#ffccd8',
+                decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🍪"]
+            },
+            forest: { 
+                bg: 'linear-gradient(to bottom, #1b4332, #432818)', 
+                boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', 
+                light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e',
+                panelBg: '#2d4a3e', panelText: '#ffeacc', selectBg: '#1b3328', selectText: '#ffffff', border: '#40916c',
+                decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🪵"]
+            },
+            magma: { 
+                bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', 
+                boardBg: 'linear-gradient(45deg, #111111,
