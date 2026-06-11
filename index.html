@@ -45,20 +45,24 @@
             100% { transform: translateY(-10px) rotate(8deg); }
         }
 
-        /* Top Layout Box */
+        /* Top Layout Box - Forces the row group to take exactly 60% of viewport width */
         .game-container {
             display: flex;
             gap: 20px;
-            flex-wrap: wrap;
+            width: 60vw;
+            min-width: 1080px; /* Ensures panels don't squish past usability on small displays */
             justify-content: center;
+            align-items: flex-start;
             position: relative;
             z-index: 1;
         }
 
+        /* Centralizes the game arena structure inside the layout */
         .main-column {
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex: 0 0 400px; /* Locks the middle game column structure safely to 400px wide */
         }
 
         /* Top Score Bar */
@@ -194,10 +198,10 @@
 
         #start-btn:hover { background-color: #355ec4; }
 
-        /* Side panels */
+        /* Side panels dynamically share left-over space inside the 60% system */
         .side-panel {
             background-color: white;
-            width: 320px;
+            flex: 1; /* Shares remaining space evenly */
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -263,6 +267,19 @@
             font-weight: 500;
         }
         #leaderboard-list li:first-child { color: gold; font-weight: bold; }
+
+        /* Mobile Breakout fallback if window is narrow */
+        @media (max-width: 1120px) {
+            .game-container {
+                width: 95vw;
+                min-width: auto;
+                flex-wrap: wrap;
+            }
+            .side-panel {
+                flex: none;
+                width: 320px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -398,7 +415,6 @@
         let gameRunning = false;
         let changingDirection = false;
 
-        // Enhanced themes with complete world design architectures
         const themes = {
             classic: { 
                 bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30',
@@ -465,7 +481,7 @@
             "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🍩","🍪","🍧","🍨","🍦"],
             "Drinks": ["🍼","🥛","☕","🫖","🍵","🥤","🧃","🧉","🍺","🍷","🥂","🍹"],
             "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚","🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮", "🐢", "🐍", "🦈", "🐋", "🐠", "🐡", "🐜", "🪰"],
-            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
+            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
             "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","👑","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
             "Flags & Misc": ["🏁","🚩","🎌","🏴‍☠️","💘","💝","💖","💗","💓","💞","💕","💟","❣️","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎"]
         };
@@ -505,7 +521,6 @@
             }
         }
 
-        // Spawns environmental static items around the viewport canvas
         function spawnThemeDecorations(themeKey) {
             decorContainer.innerHTML = '';
             const activeTheme = themes[themeKey];
@@ -554,7 +569,6 @@
             }
         }
 
-        // Leaderboard Management
         function loadLeaderboard() {
             leaderboardList.innerHTML = "";
             let scores = JSON.parse(localStorage.getItem('snake_leaderboard')) || [
@@ -734,7 +748,6 @@
 
         window.addEventListener('keydown', changeDirection);
         
-        // Initial setup
         populateFoodDropdown();
         updateMapTheme();
         loadLeaderboard();
