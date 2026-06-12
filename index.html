@@ -17,7 +17,7 @@
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
-            transition: background 0.5s ease;
+            transition: background 0.5s ease, color 0.3s ease;
             position: relative;
         }
 
@@ -35,7 +35,7 @@
 
         .ambient-item {
             position: absolute;
-            font-size: 42px; /* Bigger decoration icons */
+            font-size: 42px;
             opacity: 0.85;
             animation: floatAmbient 4s ease-in-out infinite alternate;
         }
@@ -64,8 +64,8 @@
         /* Top Score Bar */
         #score-bar {
             background-color: #4e7a30;
-            width: 600px; /* Scaled to match the new board width */
-            height: 70px; /* Taller banner */
+            width: 600px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-around;
@@ -77,7 +77,7 @@
 
         .stat {
             color: white;
-            font-size: 28px; /* Larger text */
+            font-size: 28px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -86,8 +86,8 @@
 
         /* Game Board */
         #game-board {
-            width: 600px;  /* Blown up from 400px */
-            height: 600px; /* Blown up from 400px */
+            width: 600px;
+            height: 600px;
             background-color: #aad751;
             position: relative;
             box-shadow: 0 12px 24px rgba(0,0,0,0.3);
@@ -100,16 +100,12 @@
         /* Grid Effect */
         .grid-tile {
             position: absolute;
-            width: 30px; /* Enlarged tile resolution steps */
-            height: 30px;
             transition: background-color 0.3s;
         }
 
         /* Game Elements */
         .snake-head, .snake-body {
             position: absolute;
-            width: 30px; /* Upgraded sizing dimensions */
-            height: 30px;
             border-radius: 6px;
             z-index: 3;
             display: flex;
@@ -124,21 +120,16 @@
         /* Accessory Styling overlayed on head */
         .accessory-slot {
             position: absolute;
-            font-size: 22px; /* Expanded crown, shades, etc. */
-            top: -10px;
             pointer-events: none;
             z-index: 4;
         }
 
         .food-item {
             position: absolute;
-            width: 30px;
-            height: 30px;
             z-index: 2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px; /* Bigger food emojis */
         }
 
         /* Overlays */
@@ -195,22 +186,25 @@
 
         #start-btn:hover { background-color: #355ec4; }
 
-        /* Side panels */
+        /* Side panels and shared customization styles */
         .side-panel {
             background-color: white;
-            width: 380px; /* Widened settings menu */
+            color: #333;
+            width: 380px;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
             box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+            border: 2px solid transparent;
         }
 
         .side-panel h3 { 
             margin-top: 0; 
-            color: #333; 
             font-size: 26px;
             border-bottom: 3px solid #eee; 
             padding-bottom: 10px;
+            transition: border-color 0.5s ease;
         }
 
         /* Customization Grid */
@@ -225,19 +219,22 @@
             flex-direction: column;
         }
 
-        .control-group label {
+        .control-group label, .size-panel-label {
             font-size: 14px;
             font-weight: bold;
-            color: #555;
             margin-bottom: 6px;
             text-transform: uppercase;
+            opacity: 0.85;
         }
 
-        .control-group select, .control-group input[type="text"] {
+        .control-group select, .control-group input[type="text"], #boardSize {
             padding: 10px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 16px;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
         }
 
         .color-picker-wrapper {
@@ -274,8 +271,36 @@
             border-bottom: 1px dashed #eee;
             font-size: 18px;
             font-weight: 500;
+            transition: border-color 0.5s ease;
         }
         #leaderboard-list li:first-child { color: gold; font-weight: bold; font-size: 20px; }
+
+        /* Board Sizer Layout Panel */
+        #size-control-panel {
+            width: 600px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+        }
+        
+        #size-control-panel .control-group {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        #size-control-panel label {
+            margin-bottom: 0;
+            font-size: 16px;
+        }
+
+        #boardSize {
+            width: 200px;
+        }
     </style>
 </head>
 <body>
@@ -346,410 +371,4 @@
                 <select id="foodAmount">
                     <option value="1">1 (Standard)</option>
                     <option value="3">3</option>
-                    <option value="5">5</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="main-column">
-            <div id="score-bar">
-                <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
-                <div class="stat">🏆 <span id="high-score">0</span></div>
-            </div>
-
-            <div id="game-board">
-                <div id="overlay">
-                    <h2 id="overlay-text">Snake Game</h2>
-                    <div id="name-input-box">
-                        <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
-                        <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
-                    </div>
-                    <button id="start-btn" onclick="startGame()">Play</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="side-panel">
-            <h3>Leaderboard</h3>
-            <ul id="leaderboard-list">
-            </ul>
-        </div>
-
-    </div>
-
-    <script>
-        const board = document.getElementById('game-board');
-        const scoreEl = document.getElementById('score');
-        const highScoreEl = document.getElementById('high-score');
-        const scoreIconEl = document.getElementById('score-icon');
-        const overlay = document.getElementById('overlay');
-        const overlayText = document.getElementById('overlay-text');
-        const startBtn = document.getElementById('start-btn');
-        const nameInputBox = document.getElementById('name-input-box');
-        const playerNameInput = document.getElementById('player-name');
-        const leaderboardList = document.getElementById('leaderboard-list');
-        const decorContainer = document.getElementById('theme-decorations');
-
-        // Form elements
-        const optSnakeColor = document.getElementById('snakeColor');
-        const colorHexSpan = document.getElementById('colorHex');
-        const optAccessory = document.getElementById('snakeAccessory');
-        const optMapTheme = document.getElementById('mapTheme');
-        const optFoodType = document.getElementById('foodType');
-        const optGameSpeed = document.getElementById('gameSpeed');
-        const optFoodAmount = document.getElementById('foodAmount');
-
-        // Scaled coordinate updates
-        const tileSize = 30; // Scaled up from 20
-        const gridCount = 20; // 20 tiles x 30px = 600px wide game-board
-
-        let snake = [];
-        let foodList = [];
-        let dx = tileSize;
-        let dy = 0;
-        let score = 0;
-        let gameInterval;
-        let gameRunning = false;
-        let changingDirection = false;
-
-        const themes = {
-            classic: { 
-                bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30',
-                decorations: ["🌱", "🌿", "🌲"]
-            },
-            beach: { 
-                bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', 
-                boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', 
-                light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6',
-                decorations: ["🦀", "🐚", "🌊"]
-            },
-            desert: { 
-                bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', 
-                boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', 
-                light: '#e6c280', dark: '#d9b473', header: '#8c3b03',
-                decorations: ["🌵", "🐫", "💀"]
-            },
-            candy: { 
-                bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', 
-                boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', 
-                light: '#ffeef3', dark: '#ffccd8', header: '#7209b7',
-                decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🍪"]
-            },
-            forest: { 
-                bg: 'linear-gradient(to bottom, #132a13, #432818)', 
-                boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', 
-                light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e',
-                decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🪵"]
-            },
-            magma: { 
-                bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', 
-                boardBg: 'linear-gradient(45deg, #111111, #260500)', 
-                light: '#ba2d13', dark: '#4a0e05', header: '#e05300',
-                decorations: ["🌋", "🔥"]
-            },
-            space: { 
-                bg: 'radial-gradient(circle, #2c003e 0%, #050014 100%)', 
-                boardBg: 'linear-gradient(to bottom, #03001e, #1f003a)', 
-                light: '#7303c0', dark: '#3a0066', header: '#240046',
-                decorations: ["🚀", "🪐", "👽", "⭐️", "☄️", "🛰️", "🌎", "🌙"]
-            },
-            snow: { 
-                bg: 'linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%)', 
-                boardBg: 'linear-gradient(to bottom, #ffffff, #e9ecef)', 
-                light: '#f8f9fa', dark: '#dee2e6', header: '#495057',
-                decorations: ["❄️", "☃️", "🐧", "🐻‍❄️"]
-            },
-            cyber: { 
-                bg: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)', 
-                boardBg: '#1e1b4b', light: '#312e81', dark: '#ff007f', header: '#4338ca',
-                decorations: ["👾", "🤖", "🌐"]
-            },
-            retro: { 
-                bg: '#000000', boardBg: '#111111', light: '#222222', dark: '#0a0a0a', header: '#333333',
-                decorations: ["🕹️", "👾", "🎮"]
-            }
-        };
-
-        const foodCategories = {
-            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🫒"],
-            "Vegetables": ["🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🧄","🧅","🥔","🍠","🍄","🥜","🌰"],
-            "Bakery & Breakfast": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞","🧇","🥓"],
-            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🌮","🌯","🫔","🥗","🍿","🍱","🍘","🍙","🍚","🍛","🍜","🍝","🍢","🍣","🍤","🦪","🥟","🍲","🫕"],
-            "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🍩","🍪","🍧","🍨","🍦"],
-            "Drinks": ["🍼","🥛","☕","🫖","🍵","🥤","🧃","🧉","🍺","🍷","🥂","🍹"],
-            "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚","🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮", "🐢", "🐍", "🦈", "🐋", "🐠", "🐡", "🐜", "🪰"],
-            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
-            "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","👑","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
-            "Flags & Misc": ["🏁","🚩","🎌","🏴‍☠️","💘","💝","💖","💗","💓","💞","💕","💟","❣️","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎"]
-        };
-
-        function populateFoodDropdown() {
-            let totalCount = 1;
-            for (const [category, items] of Object.entries(foodCategories)) {
-                const group = document.createElement('optgroup');
-                group.label = category;
-                
-                items.forEach(emoji => {
-                    const opt = document.createElement('option');
-                    opt.value = emoji;
-                    opt.textContent = `${totalCount}. ${emoji}`;
-                    group.appendChild(opt);
-                    totalCount++;
-                });
-                optFoodType.appendChild(group);
-            }
-            optFoodType.selectedIndex = 0;
-        }
-
-        function createGrid() {
-            document.querySelectorAll('.grid-tile').forEach(el => el.remove());
-            const currentTheme = themes[optMapTheme.value];
-            
-            for (let row = 0; row < gridCount; row++) {
-                for (let col = 0; col < gridCount; col++) {
-                    const tile = document.createElement('div');
-                    tile.classList.add('grid-tile');
-                    tile.style.left = `${col * tileSize}px`;
-                    tile.style.top = `${row * tileSize}px`;
-                    
-                    tile.style.backgroundColor = ((row + col) % 2 !== 0) ? currentTheme.dark : currentTheme.light;
-                    board.insertBefore(tile, board.firstChild);
-                }
-            }
-        }
-
-        function spawnThemeDecorations(themeKey) {
-            decorContainer.innerHTML = '';
-            const activeTheme = themes[themeKey];
-            
-            for (let i = 0; i < 16; i++) {
-                const item = document.createElement('div');
-                item.classList.add('ambient-item');
-                item.textContent = activeTheme.decorations[Math.floor(Math.random() * activeTheme.decorations.length)];
-                
-                item.style.left = `${Math.random() * 92}%`;
-                item.style.top = `${Math.random() * 92}%`;
-                item.style.animationDelay = `${Math.random() * 2}s`;
-                
-                decorContainer.appendChild(item);
-            }
-        }
-
-        function updateMapTheme() {
-            const currentTheme = themes[optMapTheme.value];
-            
-            document.body.style.background = currentTheme.bg;
-            board.style.background = currentTheme.boardBg;
-            document.getElementById('score-bar').style.backgroundColor = currentTheme.header;
-            
-            createGrid();
-            spawnThemeDecorations(optMapTheme.value);
-        }
-
-        function updateStyles() {
-            colorHexSpan.textContent = optSnakeColor.value.toUpperCase();
-            document.querySelectorAll('.snake-head, .snake-body').forEach(el => {
-                el.style.backgroundColor = optSnakeColor.value;
-            });
-        }
-
-        function updateFoodIcon() {
-            scoreIconEl.textContent = optFoodType.value;
-            document.querySelectorAll('.food-item').forEach(el => el.textContent = optFoodType.value);
-        }
-
-        function updateSpeed() {
-            if (gameRunning) {
-                clearInterval(gameInterval);
-                gameInterval = setInterval(mainGameLoop, parseInt(optGameSpeed.value));
-            }
-        }
-
-        function loadLeaderboard() {
-            leaderboardList.innerHTML = "";
-            let scores = JSON.parse(localStorage.getItem('snake_leaderboard')) || [
-                {name: "GoogleSnake", score: 25},
-                {name: "ChompMaster", score: 15},
-                {name: "NokiaFan", score: 8}
-            ];
-            scores.sort((a,b) => b.score - a.score);
-            scores.slice(0, 7).forEach(entry => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${entry.name}</span> <span>${entry.score} pts</span>`;
-                leaderboardList.appendChild(li);
-            });
-            
-            if(scores.length > 0) {
-                highScoreEl.textContent = scores[0].score;
-            }
-        }
-
-        function saveScoreToLeaderboard(finalScore) {
-            let name = playerNameInput.value.trim() || "Anonymous";
-            let scores = JSON.parse(localStorage.getItem('snake_leaderboard')) || [];
-            scores.push({name: name, score: finalScore});
-            localStorage.setItem('snake_leaderboard', JSON.stringify(scores));
-            loadLeaderboard();
-        }
-
-        function startGame() {
-            clearBoardElements();
-            
-            // Adjusted coordinates to fit scaling cleanly on grid lines
-            snake = [
-                { x: tileSize * 5, y: tileSize * 10 },
-                { x: tileSize * 4, y: tileSize * 10 },
-                { x: tileSize * 3, y: tileSize * 10 }
-            ];
-            dx = tileSize;
-            dy = 0;
-            score = 0;
-            scoreEl.textContent = score;
-            overlay.style.display = 'none';
-            nameInputBox.style.display = 'none';
-            gameRunning = true;
-            changingDirection = false;
-
-            foodList = [];
-            const targetFoodCount = parseInt(optFoodAmount.value);
-            for (let i = 0; i < targetFoodCount; i++) {
-                spawnFoodItem();
-            }
-
-            drawFood();
-            drawSnake();
-            
-            clearInterval(gameInterval);
-            gameInterval = setInterval(mainGameLoop, parseInt(optGameSpeed.value));
-        }
-
-        function mainGameLoop() {
-            if (hasGameEnded()) {
-                gameOver();
-                return;
-            }
-            changingDirection = false;
-            clearBoardElements();
-            moveSnake();
-            drawFood();
-            drawSnake();
-        }
-
-        function moveSnake() {
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            snake.unshift(head);
-
-            let ateFoodIndex = -1;
-            for (let i = 0; i < foodList.length; i++) {
-                if (head.x === foodList[i].x && head.y === foodList[i].y) {
-                    ateFoodIndex = i;
-                    break;
-                }
-            }
-
-            if (ateFoodIndex !== -1) {
-                score += 1;
-                scoreEl.textContent = score;
-                foodList.splice(ateFoodIndex, 1);
-                spawnFoodItem();
-            } else {
-                snake.pop();
-            }
-        }
-
-        function drawSnake() {
-            snake.forEach((part, index) => {
-                const snakePart = document.createElement('div');
-                snakePart.classList.add(index === 0 ? 'snake-head' : 'snake-body');
-                snakePart.style.left = `${part.x}px`;
-                snakePart.style.top = `${part.y}px`;
-                snakePart.style.backgroundColor = optSnakeColor.value;
-                
-                if (index === 0 && optAccessory.value !== "") {
-                    const accessory = document.createElement('div');
-                    accessory.classList.add('accessory-slot');
-                    accessory.textContent = optAccessory.value;
-                    snakePart.appendChild(accessory);
-                }
-                
-                board.appendChild(snakePart);
-            });
-        }
-
-        function spawnFoodItem() {
-            let newFood = { x: 0, y: 0 };
-            let validLocation = false;
-            while (!validLocation) {
-                newFood.x = Math.floor(Math.random() * gridCount) * tileSize;
-                newFood.y = Math.floor(Math.random() * gridCount) * tileSize;
-                validLocation = true;
-                snake.forEach(part => {
-                    if (part.x === newFood.x && part.y === newFood.y) validLocation = false;
-                });
-                foodList.forEach(food => {
-                    if (food.x === newFood.x && food.y === newFood.y) validLocation = false;
-                });
-            }
-            foodList.push(newFood);
-        }
-
-        function drawFood() {
-            foodList.forEach(food => {
-                const foodEl = document.createElement('div');
-                foodEl.classList.add('food-item');
-                foodEl.style.left = `${food.x}px`;
-                foodEl.style.top = `${food.y}px`;
-                foodEl.textContent = optFoodType.value;
-                board.appendChild(foodEl);
-            });
-        }
-
-        function clearBoardElements() {
-            document.querySelectorAll('.snake-head, .snake-body, .food-item').forEach(el => el.remove());
-        }
-
-        function changeDirection(event) {
-            const keyPressed = event.keyCode;
-            const LEFT = 37; const UP = 38; const RIGHT = 39; const DOWN = 40;
-            if (changingDirection) return;
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingRight = dx === tileSize;
-            const goingLeft = dx === -tileSize;
-
-            if (keyPressed === LEFT && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === UP && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
-            if (keyPressed === RIGHT && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === DOWN && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
-        }
-
-        function hasGameEnded() {
-            if (snake[0].x < 0 || snake[0].x >= board.clientWidth || snake[0].y < 0 || snake[0].y >= board.clientHeight) return true;
-            for (let i = 4; i < snake.length; i++) {
-                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
-            }
-            return false;
-        }
-
-        function gameOver() {
-            clearInterval(gameInterval);
-            gameRunning = false;
-            
-            saveScoreToLeaderboard(score);
-            
-            overlayText.textContent = "Game Over";
-            startBtn.textContent = "Play Again";
-            nameInputBox.style.display = 'flex';
-            overlay.style.display = 'flex';
-        }
-
-        window.addEventListener('keydown', changeDirection);
-        
-        // Initial configuration setup
-        populateFoodDropdown();
-        updateMapTheme();
-        loadLeaderboard();
-        nameInputBox.style.display = 'flex';
-    </script>
-</body>
-</html>
+                    <option value="
