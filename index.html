@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Customizable Snake Game (XL Edition)</title>
+    <title>Ultimate Customizable Snake Game (Definitive Edition)</title>
     <style>
         body {
             background-color: #4a752c;
@@ -21,7 +21,6 @@
             position: relative;
         }
 
-        /* Ambient Environment Decorations Box */
         #theme-decorations {
             position: absolute;
             top: 0;
@@ -45,7 +44,6 @@
             100% { transform: translateY(-15px) rotate(10deg); }
         }
 
-        /* Top Layout Box */
         .game-container {
             display: flex;
             gap: 30px;
@@ -61,7 +59,6 @@
             align-items: center;
         }
 
-        /* Top Score Bar */
         #score-bar {
             background-color: #4e7a30;
             width: 600px;
@@ -84,7 +81,6 @@
             gap: 12px;
         }
 
-        /* Game Board */
         #game-board {
             width: 600px;
             height: 600px;
@@ -97,15 +93,33 @@
             transition: background 0.5s ease;
         }
 
-        /* Grid Effect */
         .grid-tile {
             position: absolute;
             width: 30px;
             height: 30px;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.15);
+            user-select: none;
         }
 
-        /* Game Elements */
+        #light-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+            mix-blend-mode: multiply;
+        }
+
         .snake-head, .snake-body {
             position: absolute;
             width: 30px;
@@ -121,7 +135,6 @@
             opacity: 0.85;
         }
 
-        /* Accessory Styling overlayed on head */
         .accessory-slot {
             position: absolute;
             font-size: 22px;
@@ -130,7 +143,7 @@
             z-index: 4;
         }
 
-        .food-item, .obstacle-item {
+        .food-item, .obstacle-item, .key-item {
             position: absolute;
             width: 30px;
             height: 30px;
@@ -139,9 +152,9 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            transition: top 0.2s ease, left 0.2s ease;
         }
 
-        /* Overlays */
         #overlay {
             position: absolute;
             top: 0;
@@ -195,7 +208,22 @@
 
         #start-btn:hover { background-color: #355ec4; }
 
-        /* Side panels */
+        #end-round-btn {
+            background-color: #d90429;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.1s;
+        }
+        #end-round-btn:hover { background-color: #b30322; }
+        #end-round-btn:active { transform: scale(0.98); }
+
         .side-panel {
             background-color: white;
             width: 380px;
@@ -213,7 +241,6 @@
             padding-bottom: 10px;
         }
 
-        /* Customization Grid */
         #custom-panel {
             display: flex;
             flex-direction: column;
@@ -233,7 +260,7 @@
             text-transform: uppercase;
         }
 
-        .control-group select, .control-group input[type="text"] {
+        .control-group select, .control-group input {
             padding: 10px;
             border-radius: 6px;
             border: 1px solid #ccc;
@@ -260,7 +287,6 @@
             font-weight: bold;
         }
 
-        /* Leaderboard styling */
         #leaderboard-list {
             list-style: none;
             padding: 0;
@@ -289,16 +315,30 @@
             
             <div class="control-group">
                 <label>Game Mode</label>
-                <select id="gameMode">
-                    <option value="classic">Classic (Walls = Death)</option>
-                    <option value="portals">Portals (Screen Wrap)</option>
-                    <option value="obstacles">Obstacles (Avoid Rocks)</option>
-                    <option value="speedup">Speed Up (Gets Faster)</option>
+                <select id="gameMode" onchange="toggleModeSettings()">
+                    <option value="classic">Classic Mode</option>
+                    <option value="wall">Wall Mode</option>
+                    <option value="peaceful">Peaceful Mode</option>
+                    <option value="infinite">Infinite Mode</option>
+                    <option value="portal">Portal Mode</option>
+                    <option value="key">Key Mode</option>
+                    <option value="light">Light Mode</option>
+                    <option value="arrow">Arrow Mode</option>
                 </select>
             </div>
 
             <div class="control-group">
-                <label>Snake Color (Color Wheel)</label>
+                <label>Special Modifiers</label>
+                <select id="specialMod">
+                    <option value="none">Standard Fruit Behavior</option>
+                    <option value="twin">Twin Mode (Extra Food Splurges)</option>
+                    <option value="winged">Winged Mode (Flying/Moving Fruits)</option>
+                    <option value="multi">Multi-Divide Mode (Splits Growth Rate)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Snake Color</label>
                 <div class="color-picker-wrapper">
                     <input type="color" id="snakeColor" value="#4674e9" onchange="updateStyles()">
                     <span id="colorHex">#4674e9</span>
@@ -336,28 +376,23 @@
             </div>
 
             <div class="control-group">
-                <label>Food Item</label>
+                <label>Food Item Base</label>
                 <select id="foodType" onchange="updateFoodIcon()">
                 </select>
             </div>
 
             <div class="control-group">
-                <label>Game Speed</label>
+                <label>Speed Mods</label>
                 <select id="gameSpeed" onchange="updateSpeed()">
-                    <option value="150">Slow</option>
-                    <option value="100" selected>Normal</option>
-                    <option value="70">Fast</option>
-                    <option value="45">Hyper</option>
+                    <option value="200">Slow Speed</option>
+                    <option value="120" selected>Normal Speed</option>
+                    <option value="60">Fast Speed</option>
                 </select>
             </div>
 
-            <div class="control-group">
-                <label>Food Count</label>
-                <select id="foodAmount">
-                    <option value="1">1 (Standard)</option>
-                    <option value="3">3</option>
-                    <option value="5">5</option>
-                </select>
+            <div class="control-group" id="fruitCountBox">
+                <label>Fruit Quantities</label>
+                <input type="number" id="foodAmount" value="1" min="1" max="30">
             </div>
         </div>
 
@@ -368,6 +403,7 @@
             </div>
 
             <div id="game-board">
+                <div id="light-mask"></div>
                 <div id="overlay">
                     <h2 id="overlay-text">Snake Game</h2>
                     <div id="name-input-box">
@@ -377,6 +413,8 @@
                     <button id="start-btn" onclick="startGame()">Play</button>
                 </div>
             </div>
+
+            <button id="end-round-btn" onclick="forceEndRound()">End Round</button>
         </div>
 
         <div class="side-panel">
@@ -399,8 +437,10 @@
         const playerNameInput = document.getElementById('player-name');
         const leaderboardList = document.getElementById('leaderboard-list');
         const decorContainer = document.getElementById('theme-decorations');
+        const lightMask = document.getElementById('light-mask');
 
         const optGameMode = document.getElementById('gameMode');
+        const optSpecialMod = document.getElementById('specialMod');
         const optSnakeColor = document.getElementById('snakeColor');
         const colorHexSpan = document.getElementById('colorHex');
         const optAccessory = document.getElementById('snakeAccessory');
@@ -408,6 +448,7 @@
         const optFoodType = document.getElementById('foodType');
         const optGameSpeed = document.getElementById('gameSpeed');
         const optFoodAmount = document.getElementById('foodAmount');
+        const fruitCountBox = document.getElementById('fruitCountBox');
 
         const tileSize = 30; 
         const gridCount = 20; 
@@ -415,11 +456,15 @@
         let snake = [];
         let foodList = [];
         let obstacleList = [];
+        let arrowTracks = {}; 
+        let keyItem = null; 
+        let isFruitUnlocked = false;
+
         let dx = tileSize;
         let dy = 0;
         let score = 0;
         let gameInterval;
-        let currentIntervalSpeed = 100;
+        let currentIntervalSpeed = 120;
         let gameRunning = false;
         let changingDirection = false;
 
@@ -437,30 +482,19 @@
         };
 
         const foodCategories = {
-            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🫒"],
-            "Vegetables": ["🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🧄","🧅","🥔","🍠","🍄","🥜","🌰"],
-            "Bakery": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞","🧇","🥓"],
-            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🥪","🌮","🌯","🥗","🍿","🍜","🍝","🍣","🥟"],
-            "Sweets": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍩","🍪","🍧","🍨","🍦"],
-            "Drinks": ["🥛","☕","🫖","🍵","🥤","🧃","🍺","🍷","🥂","🍹"],
-            "Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🦇","🦋","🐌","🐛","🐜","🪰","🪲","🪳","🦎","🐍","🐢"],
-            "Gaming": ["⚽","🏀","🏈","⚾","🎾","🎱","🪀","🏓","🎮","🎲","🧩","♟️"],
-            "Valuables": ["💎","👑","💍","💄","🎒","💼","🕶️","🪙","💵","🔮","🎈","🎉"],
-            "Flags & Hearts": ["🏁","🚩","🏴‍☠️","💘","💝","💖","💗","💓","❤️","🧡","💛","💚","💙","💜","🖤"]
+            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥝","🍅"],
+            "Meals & Sweets": ["🍔","🍟","🍕","🥪","🌮","🍿","🍩","🍪","🎂","🍫","🍬","🍭","🍦"]
         };
 
         function populateFoodDropdown() {
-            let totalCount = 1;
             for (const [category, items] of Object.entries(foodCategories)) {
                 const group = document.createElement('optgroup');
                 group.label = category;
-                
                 items.forEach(emoji => {
                     const opt = document.createElement('option');
                     opt.value = emoji;
-                    opt.textContent = `${totalCount}. ${emoji}`;
+                    opt.textContent = emoji;
                     group.appendChild(opt);
-                    totalCount++;
                 });
                 optFoodType.appendChild(group);
             }
@@ -470,14 +504,13 @@
         function createGrid() {
             document.querySelectorAll('.grid-tile').forEach(el => el.remove());
             const currentTheme = themes[optMapTheme.value];
-            
             for (let row = 0; row < gridCount; row++) {
                 for (let col = 0; col < gridCount; col++) {
                     const tile = document.createElement('div');
                     tile.classList.add('grid-tile');
+                    tile.id = `tile-${col * tileSize}-${row * tileSize}`;
                     tile.style.left = `${col * tileSize}px`;
                     tile.style.top = `${row * tileSize}px`;
-                    
                     tile.style.backgroundColor = ((row + col) % 2 !== 0) ? currentTheme.dark : currentTheme.light;
                     board.insertBefore(tile, board.firstChild);
                 }
@@ -487,27 +520,22 @@
         function spawnThemeDecorations(themeKey) {
             decorContainer.innerHTML = '';
             const activeTheme = themes[themeKey];
-            
             for (let i = 0; i < 16; i++) {
                 const item = document.createElement('div');
                 item.classList.add('ambient-item');
                 item.textContent = activeTheme.decorations[Math.floor(Math.random() * activeTheme.decorations.length)];
-                
                 item.style.left = `${Math.random() * 92}%`;
                 item.style.top = `${Math.random() * 92}%`;
                 item.style.animationDelay = `${Math.random() * 2}s`;
-                
                 decorContainer.appendChild(item);
             }
         }
 
         function updateMapTheme() {
             const currentTheme = themes[optMapTheme.value];
-            
             document.body.style.background = currentTheme.bg;
             board.style.background = currentTheme.boardBg;
             document.getElementById('score-bar').style.backgroundColor = currentTheme.header;
-            
             createGrid();
             spawnThemeDecorations(optMapTheme.value);
         }
@@ -521,23 +549,30 @@
 
         function updateFoodIcon() {
             scoreIconEl.textContent = optFoodType.value;
-            document.querySelectorAll('.food-item').forEach(el => el.textContent = optFoodType.value);
         }
 
         function updateSpeed() {
-            if (gameRunning && optGameMode.value !== "speedup") {
+            if (gameRunning) {
                 currentIntervalSpeed = parseInt(optGameSpeed.value);
                 clearInterval(gameInterval);
                 gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
             }
         }
 
+        function toggleModeSettings() {
+            const mode = optGameMode.value;
+            if (mode === "portal" || mode === "key") {
+                fruitCountBox.style.display = 'none';
+            } else {
+                fruitCountBox.style.display = 'flex';
+            }
+        }
+
         function loadLeaderboard() {
             leaderboardList.innerHTML = "";
             let scores = JSON.parse(localStorage.getItem('snake_leaderboard')) || [
-                {name: "GoogleSnake", score: 25},
-                {name: "ChompMaster", score: 15},
-                {name: "NokiaFan", score: 8}
+                {name: "ChompExpert", score: 20},
+                {name: "NokiaGamer", score: 12}
             ];
             scores.sort((a,b) => b.score - a.score);
             scores.slice(0, 7).forEach(entry => {
@@ -545,10 +580,7 @@
                 li.innerHTML = `<span>${entry.name}</span> <span>${entry.score} pts</span>`;
                 leaderboardList.appendChild(li);
             });
-            
-            if(scores.length > 0) {
-                highScoreEl.textContent = scores[0].score;
-            }
+            if(scores.length > 0) highScoreEl.textContent = scores[0].score;
         }
 
         function saveScoreToLeaderboard(finalScore) {
@@ -561,6 +593,7 @@
 
         function startGame() {
             clearBoardElements();
+            createGrid(); 
             
             snake = [
                 { x: tileSize * 5, y: tileSize * 10 },
@@ -578,14 +611,38 @@
             currentIntervalSpeed = parseInt(optGameSpeed.value);
 
             obstacleList = [];
-            if (optGameMode.value === "obstacles") {
-                for (let i = 0; i < 8; i++) {
-                    spawnObstacleItem();
-                }
+            arrowTracks = {};
+            keyItem = null;
+            isFruitUnlocked = false;
+
+            const mode = optGameMode.value;
+            const modifier = optSpecialMod.value;
+
+            if (mode === "light") {
+                lightMask.style.display = 'block';
+            } else {
+                lightMask.style.display = 'none';
+            }
+
+            if (mode === "wall") {
+                for (let i = 0; i < 4; i++) spawnObstacleItem();
             }
 
             foodList = [];
-            const targetFoodCount = parseInt(optFoodAmount.value);
+            let targetFoodCount = parseInt(optFoodAmount.value);
+            if (isNaN(targetFoodCount) || targetFoodCount < 1) targetFoodCount = 1;
+            
+            if (mode === "portal") {
+                targetFoodCount = 2; // Portal mode explicitly spawns two identical fruits
+            }
+            if (mode === "key") {
+                targetFoodCount = 1;
+                spawnKeyItem();
+            }
+            if (modifier === "twin" && mode !== "portal" && mode !== "key") {
+                targetFoodCount += 1; // Twin Mod drops extra initial fruit splurges
+            }
+
             for (let i = 0; i < targetFoodCount; i++) {
                 spawnFoodItem();
             }
@@ -593,6 +650,7 @@
             drawObstacles();
             drawFood();
             drawSnake();
+            if (mode === "light") updateLightRadius();
             
             clearInterval(gameInterval);
             gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
@@ -605,17 +663,51 @@
             }
             changingDirection = false;
             clearBoardElements();
+            
+            if (optSpecialMod.value === "winged") {
+                moveWingedFood();
+            }
+            
             moveSnake();
             drawObstacles();
             drawFood();
             drawSnake();
+            if (optGameMode.value === "light") updateLightRadius();
         }
 
         function moveSnake() {
+            const mode = optGameMode.value;
+            const modifier = optSpecialMod.value;
+
             let headX = snake[0].x + dx;
             let headY = snake[0].y + dy;
 
-            if (optGameMode.value === "portals") {
+            // --- Arrow Mode Handle Intersection ---
+            if (mode === "arrow") {
+                const currentTileKey = `${snake[0].x},${snake[0].y}`;
+                if (!arrowTracks[currentTileKey]) {
+                    let arrowSymbol = "▶";
+                    if (dx === -tileSize) arrowSymbol = "◀";
+                    if (dy === -tileSize) arrowSymbol = "▲";
+                    if (dy === tileSize) arrowSymbol = "▼";
+                    
+                    arrowTracks[currentTileKey] = { dx: dx, dy: dy, symbol: arrowSymbol };
+                    const tileEl = document.getElementById(`tile-${currentTileKey}`);
+                    if (tileEl) tileEl.textContent = arrowSymbol;
+                }
+            }
+
+            // Route ahead scan validation checks
+            const plannedNextKey = `${headX},${headY}`;
+            if (mode === "arrow" && arrowTracks[plannedNextKey]) {
+                dx = arrowTracks[plannedNextKey].dx;
+                dy = arrowTracks[plannedNextKey].dy;
+                headX = snake[0].x + dx;
+                headY = snake[0].y + dy;
+            }
+
+            // --- Infinite Mode & Peaceful Screen Boundaries Wrap Around ---
+            if (mode === "infinite" || mode === "peaceful") {
                 if (headX < 0) headX = (gridCount - 1) * tileSize;
                 else if (headX >= gridCount * tileSize) headX = 0;
 
@@ -626,6 +718,12 @@
             const head = { x: headX, y: headY };
             snake.unshift(head);
 
+            // --- Key Grab Detection ---
+            if (mode === "key" && keyItem && head.x === keyItem.x && head.y === keyItem.y) {
+                keyItem = null;
+                isFruitUnlocked = true;
+            }
+
             let ateFoodIndex = -1;
             for (let i = 0; i < foodList.length; i++) {
                 if (head.x === foodList[i].x && head.y === foodList[i].y) {
@@ -635,19 +733,73 @@
             }
 
             if (ateFoodIndex !== -1) {
+                // Key Block Condition
+                if (mode === "key" && !isFruitUnlocked) {
+                    snake.pop(); 
+                    return;
+                }
+
                 score += 1;
                 scoreEl.textContent = score;
                 foodList.splice(ateFoodIndex, 1);
-                spawnFoodItem();
 
-                if (optGameMode.value === "speedup" && currentIntervalSpeed > 30) {
-                    currentIntervalSpeed -= 5; 
-                    clearInterval(gameInterval);
-                    gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
+                // --- Portal Mode Teleportation Logic ---
+                if (mode === "portal" && foodList.length === 1) {
+                    const linkedFruit = foodList[0];
+                    // Head snaps instantly over straight to linked node coordinates
+                    snake[0].x = linkedFruit.x;
+                    snake[0].y = linkedFruit.y;
+                    foodList = [];
+                    spawnFoodItem();
+                    spawnFoodItem();
+                } else {
+                    spawnFoodItem();
+                }
+
+                // Wall mode hurdle growth step scaling trigger 
+                if (mode === "wall") {
+                    spawnObstacleItem();
+                }
+
+                // Recycle Key cycle setup
+                if (mode === "key") {
+                    isFruitUnlocked = false;
+                    spawnKeyItem();
+                }
+
+                // --- Multi-Divide Mod Rule Exception ---
+                if (modifier === "multi" && score % 2 === 0) {
+                    // Splits / sheds tail piece burden segment offsets
+                    snake.pop();
                 }
             } else {
                 snake.pop();
             }
+        }
+
+        function moveWingedFood() {
+            // 20% Chance per tick that any fruit moves to a random adjacent tile
+            foodList.forEach(food => {
+                if (Math.random() < 0.20) {
+                    const dirs = [
+                        {x: tileSize, y: 0}, {x: -tileSize, y: 0},
+                        {x: 0, y: tileSize}, {x: 0, y: -tileSize}
+                    ];
+                    const randomMove = dirs[Math.floor(Math.random() * dirs.length)];
+                    let newX = food.x + randomMove.x;
+                    let newY = food.y + randomMove.y;
+
+                    // Bound clamping
+                    if (newX >= 0 && newX < gridCount * tileSize && newY >= 0 && newY < gridCount * tileSize) {
+                        // Ensure it doesn't move onto an obstacle
+                        let collision = obstacleList.some(obs => obs.x === newX && obs.y === newY);
+                        if (!collision) {
+                            food.x = newX;
+                            food.y = newY;
+                        }
+                    }
+                }
+            });
         }
 
         function drawSnake() {
@@ -664,7 +816,6 @@
                     accessory.textContent = optAccessory.value;
                     snakePart.appendChild(accessory);
                 }
-                
                 board.appendChild(snakePart);
             });
         }
@@ -672,10 +823,12 @@
         function spawnFoodItem() {
             let newFood = { x: 0, y: 0 };
             let validLocation = false;
-            while (!validLocation) {
+            let attempts = 0;
+            while (!validLocation && attempts < 400) {
                 newFood.x = Math.floor(Math.random() * gridCount) * tileSize;
                 newFood.y = Math.floor(Math.random() * gridCount) * tileSize;
                 validLocation = true;
+                attempts++;
                 
                 snake.forEach(part => {
                     if (part.x === newFood.x && part.y === newFood.y) validLocation = false;
@@ -686,8 +839,9 @@
                 obstacleList.forEach(obs => {
                     if (obs.x === newFood.x && obs.y === newFood.y) validLocation = false;
                 });
+                if (keyItem && keyItem.x === newFood.x && keyItem.y === newFood.y) validLocation = false;
             }
-            foodList.push(newFood);
+            if (validLocation) foodList.push(newFood);
         }
 
         function drawFood() {
@@ -696,9 +850,40 @@
                 foodEl.classList.add('food-item');
                 foodEl.style.left = `${food.x}px`;
                 foodEl.style.top = `${food.y}px`;
-                foodEl.textContent = optFoodType.value;
+                
+                if (optGameMode.value === "key" && !isFruitUnlocked) {
+                    foodEl.textContent = "📦";
+                } else {
+                    foodEl.textContent = optFoodType.value;
+                }
                 board.appendChild(foodEl);
             });
+
+            if (optGameMode.value === "key" && keyItem) {
+                const keyEl = document.createElement('div');
+                keyEl.classList.add('key-item');
+                keyEl.style.left = `${keyItem.x}px`;
+                keyEl.style.top = `${keyItem.y}px`;
+                keyEl.textContent = "🔑";
+                board.appendChild(keyEl);
+            }
+        }
+
+        function spawnKeyItem() {
+            keyItem = { x: 0, y: 0 };
+            let validLocation = false;
+            while (!validLocation) {
+                keyItem.x = Math.floor(Math.random() * gridCount) * tileSize;
+                keyItem.y = Math.floor(Math.random() * gridCount) * tileSize;
+                validLocation = true;
+
+                snake.forEach(part => {
+                    if (part.x === keyItem.x && part.y === keyItem.y) validLocation = false;
+                });
+                foodList.forEach(food => {
+                    if (food.x === keyItem.x && food.y === keyItem.y) validLocation = false;
+                });
+            }
         }
 
         function spawnObstacleItem() {
@@ -709,9 +894,14 @@
                 newObs.y = Math.floor(Math.random() * gridCount) * tileSize;
                 validLocation = true;
 
-                if (newObs.y === tileSize * 10 && newObs.x < tileSize * 10) {
-                    validLocation = false;
-                }
+                if (newObs.y === tileSize * 10 && newObs.x < tileSize * 10) validLocation = false;
+                
+                snake.forEach(part => {
+                    if (part.x === newObs.x && part.y === newObs.y) validLocation = false;
+                });
+                foodList.forEach(food => {
+                    if (food.x === newObs.x && food.y === newObs.y) validLocation = false;
+                });
                 obstacleList.forEach(obs => {
                     if (obs.x === newObs.x && obs.y === newObs.y) validLocation = false;
                 });
@@ -730,14 +920,27 @@
             });
         }
 
+        function updateLightRadius() {
+            if (!snake.length) return;
+            const headX = snake[0].x + (tileSize / 2);
+            const headY = snake[0].y + (tileSize / 2);
+            lightMask.style.background = `radial-gradient(circle 95px at ${headX}px ${headY}px, transparent 100%, rgba(0,0,0,0.97) 100%)`;
+        }
+
         function clearBoardElements() {
-            document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item').forEach(el => el.remove());
+            document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item, .key-item').forEach(el => el.remove());
         }
 
         function changeDirection(event) {
             const keyPressed = event.keyCode;
             const LEFT = 37; const UP = 38; const RIGHT = 39; const DOWN = 40;
             if (changingDirection) return;
+            
+            if (optGameMode.value === "arrow") {
+                const currentTileKey = `${snake[0].x},${snake[0].y}`;
+                if (arrowTracks[currentTileKey]) return; // Forced track routing lockout active
+            }
+
             const goingUp = dy === -tileSize;
             const goingDown = dy === tileSize;
             const goingRight = dx === tileSize;
@@ -750,26 +953,35 @@
         }
 
         function hasGameEnded() {
-            if (optGameMode.value !== "portals") {
+            if (optGameMode.value === "peaceful") return false;
+
+            // Bounds Border Collision checks
+            if (optGameMode.value !== "infinite") {
                 if (snake[0].x < 0 || snake[0].x >= board.clientWidth || snake[0].y < 0 || snake[0].y >= board.clientHeight) return true;
             }
             
+            // Tail Segment Intersections
             for (let i = 4; i < snake.length; i++) {
                 if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
             }
 
-            if (optGameMode.value === "obstacles") {
+            // Wall Obstacles
+            if (optGameMode.value === "wall") {
                 for (let i = 0; i < obstacleList.length; i++) {
                     if (snake[0].x === obstacleList[i].x && snake[0].y === obstacleList[i].y) return true;
                 }
             }
-
             return false;
+        }
+
+        function forceEndRound() {
+            if (gameRunning) gameOver();
         }
 
         function gameOver() {
             clearInterval(gameInterval);
             gameRunning = false;
+            lightMask.style.display = 'none';
             
             saveScoreToLeaderboard(score);
             
@@ -785,6 +997,7 @@
         updateMapTheme();
         loadLeaderboard();
         nameInputBox.style.display = 'flex';
+        toggleModeSettings();
     </script>
 </body>
 </html>
