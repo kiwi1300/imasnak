@@ -35,7 +35,7 @@
 
         .ambient-item {
             position: absolute;
-            font-size: 42px; /* Bigger decoration icons */
+            font-size: 42px;
             opacity: 0.85;
             animation: floatAmbient 4s ease-in-out infinite alternate;
         }
@@ -64,8 +64,8 @@
         /* Top Score Bar */
         #score-bar {
             background-color: #4e7a30;
-            width: 600px; /* Scaled to match the new board width */
-            height: 70px; /* Taller banner */
+            width: 600px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-around;
@@ -77,7 +77,7 @@
 
         .stat {
             color: white;
-            font-size: 28px; /* Larger text */
+            font-size: 28px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -86,8 +86,8 @@
 
         /* Game Board */
         #game-board {
-            width: 600px;  /* Blown up from 400px */
-            height: 600px; /* Blown up from 400px */
+            width: 600px;
+            height: 600px;
             background-color: #aad751;
             position: relative;
             box-shadow: 0 12px 24px rgba(0,0,0,0.3);
@@ -100,7 +100,7 @@
         /* Grid Effect */
         .grid-tile {
             position: absolute;
-            width: 30px; /* Enlarged tile resolution steps */
+            width: 30px;
             height: 30px;
             transition: background-color 0.3s;
         }
@@ -108,7 +108,7 @@
         /* Game Elements */
         .snake-head, .snake-body {
             position: absolute;
-            width: 30px; /* Upgraded sizing dimensions */
+            width: 30px;
             height: 30px;
             border-radius: 6px;
             z-index: 3;
@@ -124,7 +124,7 @@
         /* Accessory Styling overlayed on head */
         .accessory-slot {
             position: absolute;
-            font-size: 22px; /* Expanded crown, shades, etc. */
+            font-size: 22px;
             top: -10px;
             pointer-events: none;
             z-index: 4;
@@ -198,7 +198,7 @@
         /* Side panels */
         .side-panel {
             background-color: white;
-            width: 380px; /* Widened settings menu */
+            width: 380px;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
@@ -400,7 +400,6 @@
         const leaderboardList = document.getElementById('leaderboard-list');
         const decorContainer = document.getElementById('theme-decorations');
 
-        // Form elements
         const optGameMode = document.getElementById('gameMode');
         const optSnakeColor = document.getElementById('snakeColor');
         const colorHexSpan = document.getElementById('colorHex');
@@ -410,7 +409,6 @@
         const optGameSpeed = document.getElementById('gameSpeed');
         const optFoodAmount = document.getElementById('foodAmount');
 
-        // Scaled coordinate updates
         const tileSize = 30; 
         const gridCount = 20; 
 
@@ -441,14 +439,14 @@
         const foodCategories = {
             "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🫒"],
             "Vegetables": ["🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🧄","🧅","🥔","🍠","🍄","🥜","🌰"],
-            "Bakery & Breakfast": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞","🧇","🥓"],
-            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🌮","🌯","🫔","🥗","🍿","🍱","🍘","🍙","🍚","🍛","🍜","🍝","🍢","🍣","🍤","🦪","🥟","🍲","🫕"],
-            "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🍩","🍪","🍧","🍨","🍦"],
-            "Drinks": ["🍼","🥛","☕","🫖","🍵","🥤","🧃","🧉","🍺","🍷","🥂","🍹"],
-            "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚","🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮", "🐢", "🐍", "🦈", "🐋", "🐠", "🐡", "🐜", "🪰"],
-            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
-            "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","👑","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
-            "Flags & Misc": ["🏁","🚩","🎌","🏴‍☠️","💘","💝","💖","💗","💓","💞","💕","💟","❣️","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎"]
+            "Bakery": ["🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🥞","🧇","🥓"],
+            "Main Meals": ["🥩","🍗","🍖","🌭","🍔","🍟","🍕","🥪","🌮","🌯","🥗","🍿","🍜","🍝","🍣","🥟"],
+            "Sweets": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍩","🍪","🍧","🍨","🍦"],
+            "Drinks": ["🥛","☕","🫖","🍵","🥤","🧃","🍺","🍷","🥂","🍹"],
+            "Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🦇","🦋","🐌","🐛","🐜","🪰","🪲","🪳","🦎","🐍","🐢"],
+            "Gaming": ["⚽","🏀","🏈","⚾","🎾","🎱","🪀","🏓","🎮","🎲","🧩","♟️"],
+            "Valuables": ["💎","👑","💍","💄","🎒","💼","🕶️","🪙","💵","🔮","🎈","🎉"],
+            "Flags & Hearts": ["🏁","🚩","🏴‍☠️","💘","💝","💖","💗","💓","❤️","🧡","💛","💚","💙","💜","🖤"]
         };
 
         function populateFoodDropdown() {
@@ -564,4 +562,229 @@
         function startGame() {
             clearBoardElements();
             
-            snake =
+            snake = [
+                { x: tileSize * 5, y: tileSize * 10 },
+                { x: tileSize * 4, y: tileSize * 10 },
+                { x: tileSize * 3, y: tileSize * 10 }
+            ];
+            dx = tileSize;
+            dy = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            overlay.style.display = 'none';
+            nameInputBox.style.display = 'none';
+            gameRunning = true;
+            changingDirection = false;
+            currentIntervalSpeed = parseInt(optGameSpeed.value);
+
+            obstacleList = [];
+            if (optGameMode.value === "obstacles") {
+                for (let i = 0; i < 8; i++) {
+                    spawnObstacleItem();
+                }
+            }
+
+            foodList = [];
+            const targetFoodCount = parseInt(optFoodAmount.value);
+            for (let i = 0; i < targetFoodCount; i++) {
+                spawnFoodItem();
+            }
+
+            drawObstacles();
+            drawFood();
+            drawSnake();
+            
+            clearInterval(gameInterval);
+            gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
+        }
+
+        function mainGameLoop() {
+            if (hasGameEnded()) {
+                gameOver();
+                return;
+            }
+            changingDirection = false;
+            clearBoardElements();
+            moveSnake();
+            drawObstacles();
+            drawFood();
+            drawSnake();
+        }
+
+        function moveSnake() {
+            let headX = snake[0].x + dx;
+            let headY = snake[0].y + dy;
+
+            if (optGameMode.value === "portals") {
+                if (headX < 0) headX = (gridCount - 1) * tileSize;
+                else if (headX >= gridCount * tileSize) headX = 0;
+
+                if (headY < 0) headY = (gridCount - 1) * tileSize;
+                else if (headY >= gridCount * tileSize) headY = 0;
+            }
+
+            const head = { x: headX, y: headY };
+            snake.unshift(head);
+
+            let ateFoodIndex = -1;
+            for (let i = 0; i < foodList.length; i++) {
+                if (head.x === foodList[i].x && head.y === foodList[i].y) {
+                    ateFoodIndex = i;
+                    break;
+                }
+            }
+
+            if (ateFoodIndex !== -1) {
+                score += 1;
+                scoreEl.textContent = score;
+                foodList.splice(ateFoodIndex, 1);
+                spawnFoodItem();
+
+                if (optGameMode.value === "speedup" && currentIntervalSpeed > 30) {
+                    currentIntervalSpeed -= 5; 
+                    clearInterval(gameInterval);
+                    gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
+                }
+            } else {
+                snake.pop();
+            }
+        }
+
+        function drawSnake() {
+            snake.forEach((part, index) => {
+                const snakePart = document.createElement('div');
+                snakePart.classList.add(index === 0 ? 'snake-head' : 'snake-body');
+                snakePart.style.left = `${part.x}px`;
+                snakePart.style.top = `${part.y}px`;
+                snakePart.style.backgroundColor = optSnakeColor.value;
+                
+                if (index === 0 && optAccessory.value !== "") {
+                    const accessory = document.createElement('div');
+                    accessory.classList.add('accessory-slot');
+                    accessory.textContent = optAccessory.value;
+                    snakePart.appendChild(accessory);
+                }
+                
+                board.appendChild(snakePart);
+            });
+        }
+
+        function spawnFoodItem() {
+            let newFood = { x: 0, y: 0 };
+            let validLocation = false;
+            while (!validLocation) {
+                newFood.x = Math.floor(Math.random() * gridCount) * tileSize;
+                newFood.y = Math.floor(Math.random() * gridCount) * tileSize;
+                validLocation = true;
+                
+                snake.forEach(part => {
+                    if (part.x === newFood.x && part.y === newFood.y) validLocation = false;
+                });
+                foodList.forEach(food => {
+                    if (food.x === newFood.x && food.y === newFood.y) validLocation = false;
+                });
+                obstacleList.forEach(obs => {
+                    if (obs.x === newFood.x && obs.y === newFood.y) validLocation = false;
+                });
+            }
+            foodList.push(newFood);
+        }
+
+        function drawFood() {
+            foodList.forEach(food => {
+                const foodEl = document.createElement('div');
+                foodEl.classList.add('food-item');
+                foodEl.style.left = `${food.x}px`;
+                foodEl.style.top = `${food.y}px`;
+                foodEl.textContent = optFoodType.value;
+                board.appendChild(foodEl);
+            });
+        }
+
+        function spawnObstacleItem() {
+            let newObs = { x: 0, y: 0 };
+            let validLocation = false;
+            while (!validLocation) {
+                newObs.x = Math.floor(Math.random() * gridCount) * tileSize;
+                newObs.y = Math.floor(Math.random() * gridCount) * tileSize;
+                validLocation = true;
+
+                if (newObs.y === tileSize * 10 && newObs.x < tileSize * 10) {
+                    validLocation = false;
+                }
+                obstacleList.forEach(obs => {
+                    if (obs.x === newObs.x && obs.y === newObs.y) validLocation = false;
+                });
+            }
+            obstacleList.push(newObs);
+        }
+
+        function drawObstacles() {
+            obstacleList.forEach(obs => {
+                const obsEl = document.createElement('div');
+                obsEl.classList.add('obstacle-item');
+                obsEl.style.left = `${obs.x}px`;
+                obsEl.style.top = `${obs.y}px`;
+                obsEl.textContent = "🪨";
+                board.appendChild(obsEl);
+            });
+        }
+
+        function clearBoardElements() {
+            document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item').forEach(el => el.remove());
+        }
+
+        function changeDirection(event) {
+            const keyPressed = event.keyCode;
+            const LEFT = 37; const UP = 38; const RIGHT = 39; const DOWN = 40;
+            if (changingDirection) return;
+            const goingUp = dy === -tileSize;
+            const goingDown = dy === tileSize;
+            const goingRight = dx === tileSize;
+            const goingLeft = dx === -tileSize;
+
+            if (keyPressed === LEFT && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
+            if (keyPressed === UP && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
+            if (keyPressed === RIGHT && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
+            if (keyPressed === DOWN && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
+        }
+
+        function hasGameEnded() {
+            if (optGameMode.value !== "portals") {
+                if (snake[0].x < 0 || snake[0].x >= board.clientWidth || snake[0].y < 0 || snake[0].y >= board.clientHeight) return true;
+            }
+            
+            for (let i = 4; i < snake.length; i++) {
+                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
+            }
+
+            if (optGameMode.value === "obstacles") {
+                for (let i = 0; i < obstacleList.length; i++) {
+                    if (snake[0].x === obstacleList[i].x && snake[0].y === obstacleList[i].y) return true;
+                }
+            }
+
+            return false;
+        }
+
+        function gameOver() {
+            clearInterval(gameInterval);
+            gameRunning = false;
+            
+            saveScoreToLeaderboard(score);
+            
+            overlayText.textContent = "Game Over";
+            startBtn.textContent = "Play Again";
+            nameInputBox.style.display = 'flex';
+            overlay.style.display = 'flex';
+        }
+
+        window.addEventListener('keydown', changeDirection);
+        
+        populateFoodDropdown();
+        updateMapTheme();
+        loadLeaderboard();
+        nameInputBox.style.display = 'flex';
+    </script>
+</body>
+</html>
