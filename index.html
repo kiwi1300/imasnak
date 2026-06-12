@@ -35,7 +35,7 @@
 
         .ambient-item {
             position: absolute;
-            font-size: 36px;
+            font-size: 28px;
             opacity: 0.85;
             animation: floatAmbient 4s ease-in-out infinite alternate;
         }
@@ -45,12 +45,12 @@
             100% { transform: translateY(-10px) rotate(8deg); }
         }
 
-        /* Top Layout Box - Forces the row group to take exactly 85% of viewport width */
+        /* Top Layout Box - Forces the row group to take exactly 60% of viewport width */
         .game-container {
             display: flex;
-            gap: 30px;
-            width: 85vw;
-            min-width: 1200px; /* Ensures panels don't squish past usability on small displays */
+            gap: 20px;
+            width: 60vw;
+            min-width: 1080px; /* Ensures panels don't squish past usability on small displays */
             justify-content: center;
             align-items: flex-start;
             position: relative;
@@ -62,59 +62,59 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 0 0 600px; /* Locks the middle game column structure safely to 600px wide */
+            flex: 0 0 400px; /* Locks the middle game column structure safely to 400px wide */
         }
 
         /* Top Score Bar */
         #score-bar {
             background-color: #4e7a30;
-            width: 600px;
-            height: 65px;
+            width: 400px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-around;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: background-color 0.3s;
         }
 
         .stat {
             color: white;
-            font-size: 26px;
+            font-size: 20px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         /* Game Board */
         #game-board {
-            width: 600px;
-            height: 600px;
+            width: 400px;
+            height: 400px;
             background-color: #aad751;
             position: relative;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
             overflow: hidden;
             transition: background 0.5s ease;
         }
 
-        /* Grid Effect - Matches the upscaled tileSize */
+        /* Grid Effect */
         .grid-tile {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             transition: background-color 0.3s;
         }
 
         /* Game Elements */
         .snake-head, .snake-body {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
             z-index: 3;
             display: flex;
             align-items: center;
@@ -128,21 +128,21 @@
         /* Accessory Styling overlayed on head */
         .accessory-slot {
             position: absolute;
-            font-size: 22px;
-            top: -10px;
+            font-size: 14px;
+            top: -6px;
             pointer-events: none;
             z-index: 4;
         }
 
         .food-item {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             z-index: 2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 16px;
         }
 
         /* Overlays */
@@ -157,30 +157,30 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
             z-index: 10;
         }
 
         #overlay h2 {
             color: white;
-            margin: 0 0 15px 0;
-            font-size: 46px;
+            margin: 0 0 10px 0;
+            font-size: 32px;
         }
 
         #name-input-box {
             display: none;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         #player-name {
-            padding: 10px;
-            border-radius: 6px;
+            padding: 8px;
+            border-radius: 5px;
             border: none;
-            font-size: 20px;
+            font-size: 16px;
             text-align: center;
         }
 
@@ -188,39 +188,33 @@
             background-color: #4674e9;
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 22px;
+            padding: 12px 30px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         #start-btn:hover { background-color: #355ec4; }
 
-        /* Side panels dynamically share left-over space inside the system */
+        /* Side panels dynamically share left-over space inside the 60% system */
         .side-panel {
             background-color: white;
             flex: 1; /* Shares remaining space evenly */
-            padding: 25px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             box-sizing: border-box;
         }
 
-        .side-panel h3 { 
-            margin-top: 0; 
-            color: #333; 
-            font-size: 24px;
-            border-bottom: 3px solid #eee; 
-            padding-bottom: 8px;
-        }
+        .side-panel h3 { margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 5px;}
 
         /* Customization Grid */
         #custom-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .control-group {
@@ -229,37 +223,33 @@
         }
 
         .control-group label {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             color: #555;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-transform: uppercase;
         }
 
         .control-group select, .control-group input[type="text"] {
-            padding: 10px;
-            border-radius: 6px;
+            padding: 6px;
+            border-radius: 4px;
             border: 1px solid #ccc;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .color-picker-wrapper {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .color-picker-wrapper input[type="color"] {
             border: none;
-            width: 50px;
-            height: 40px;
+            width: 40px;
+            height: 30px;
             cursor: pointer;
             padding: 0;
             background: none;
-        }
-
-        .color-picker-wrapper span {
-            font-size: 16px;
         }
 
         /* Leaderboard styling */
@@ -272,15 +262,14 @@
         #leaderboard-list li {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 6px 0;
             border-bottom: 1px dashed #eee;
             font-weight: 500;
-            font-size: 18px;
         }
-        #leaderboard-list li:first-child { color: gold; font-weight: bold; font-size: 20px; }
+        #leaderboard-list li:first-child { color: gold; font-weight: bold; }
 
         /* Mobile Breakout fallback if window is narrow */
-        @media (max-width: 1220px) {
+        @media (max-width: 1120px) {
             .game-container {
                 width: 95vw;
                 min-width: auto;
@@ -288,8 +277,7 @@
             }
             .side-panel {
                 flex: none;
-                width: 100%;
-                max-width: 600px;
+                width: 320px;
             }
         }
     </style>
@@ -377,7 +365,7 @@
                 <div id="overlay">
                     <h2 id="overlay-text">Snake Game</h2>
                     <div id="name-input-box">
-                        <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
+                        <label style="color: white; font-size: 14px;">Enter your name for Leaderboard:</label>
                         <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
                     </div>
                     <button id="start-btn" onclick="startGame()">Play</button>
@@ -415,8 +403,7 @@
         const optGameSpeed = document.getElementById('gameSpeed');
         const optFoodAmount = document.getElementById('foodAmount');
 
-        // Sizing adjusted to keep math coordinates perfect for a 600x600 board layout
-        const tileSize = 30;
+        const tileSize = 20;
         const gridCount = 20;
 
         let snake = [];
@@ -494,8 +481,8 @@
             "Sweets & Desserts": ["🎂","🍰","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🍩","🍪","🍧","🍨","🍦"],
             "Drinks": ["🍼","🥛","☕","🫖","🍵","🥤","🧃","🧉","🍺","🍷","🥂","🍹"],
             "Animals & Critters": ["🐸","🐵","🐔","🐧","🐦","🐤","🐣","🦅","🦆","🦢","🦉","🦤","🦩","🦚","🦜","🐱","🐶","🐷","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮", "🐢", "🐍", "🦈", "🐋", "🐠", "🐡", "🐜", "🪰"],
-            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","👑","🎾","🏐","🏉","🥏","🎱","🪀","🎰","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
-            "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
+            "Sports & Games": ["⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","","🏸","🏒","🥍","🏏","🏹","🎣","🎮","🎲","🧩","♟️"],
+            "Valuables & Objects": ["💎","👑","💍","💄","🎒","💼","🕶️","👓","🧣","🧤","🎩","👑","🪙","💵","💶","💷","🔮","🧿","🪄","🎈","🎉","🎇"],
             "Flags & Misc": ["🏁","🚩","🎌","🏴‍☠️","💘","💝","💖","💗","💓","💞","💕","💟","❣️","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎"]
         };
 
@@ -545,7 +532,7 @@
                 
                 item.style.left = `${Math.random() * 92}%`;
                 item.style.top = `${Math.random() * 92}%`;
-                item.style.fontSize = `${32 + Math.random() * 16}px`;
+                item.style.fontSize = `${24 + Math.random() * 16}px`;
                 item.style.animationDelay = `${Math.random() * 2}s`;
                 
                 decorContainer.appendChild(item);
@@ -613,9 +600,9 @@
             clearBoardElements();
             
             snake = [
-                { x: 150, y: 300 },
-                { x: 120, y: 300 },
-                { x: 90, y: 300 }
+                { x: 100, y: 200 },
+                { x: 80, y: 200 },
+                { x: 60, y: 200 }
             ];
             dx = tileSize;
             dy = 0;
