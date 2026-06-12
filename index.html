@@ -130,7 +130,7 @@
             z-index: 4;
         }
 
-        .food-item {
+        .food-item, .obstacle-item {
             position: absolute;
             width: 30px;
             height: 30px;
@@ -138,7 +138,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px; /* Bigger food emojis */
+            font-size: 24px;
         }
 
         /* Overlays */
@@ -165,7 +165,7 @@
         }
 
         #name-input-box {
-            display: none;
+            display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
@@ -288,6 +288,16 @@
             <h3>Customization</h3>
             
             <div class="control-group">
+                <label>Game Mode</label>
+                <select id="gameMode">
+                    <option value="classic">Classic (Walls = Death)</option>
+                    <option value="portals">Portals (Screen Wrap)</option>
+                    <option value="obstacles">Obstacles (Avoid Rocks)</option>
+                    <option value="speedup">Speed Up (Gets Faster)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
                 <label>Snake Color (Color Wheel)</label>
                 <div class="color-picker-wrapper">
                     <input type="color" id="snakeColor" value="#4674e9" onchange="updateStyles()">
@@ -391,6 +401,7 @@
         const decorContainer = document.getElementById('theme-decorations');
 
         // Form elements
+        const optGameMode = document.getElementById('gameMode');
         const optSnakeColor = document.getElementById('snakeColor');
         const colorHexSpan = document.getElementById('colorHex');
         const optAccessory = document.getElementById('snakeAccessory');
@@ -400,74 +411,31 @@
         const optFoodAmount = document.getElementById('foodAmount');
 
         // Scaled coordinate updates
-        const tileSize = 30; // Scaled up from 20
-        const gridCount = 20; // 20 tiles x 30px = 600px wide game-board
+        const tileSize = 30; 
+        const gridCount = 20; 
 
         let snake = [];
         let foodList = [];
+        let obstacleList = [];
         let dx = tileSize;
         let dy = 0;
         let score = 0;
         let gameInterval;
+        let currentIntervalSpeed = 100;
         let gameRunning = false;
         let changingDirection = false;
 
         const themes = {
-            classic: { 
-                bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30',
-                decorations: ["🌱", "🌿", "🌲"]
-            },
-            beach: { 
-                bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', 
-                boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', 
-                light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6',
-                decorations: ["🦀", "🐚", "🌊"]
-            },
-            desert: { 
-                bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', 
-                boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', 
-                light: '#e6c280', dark: '#d9b473', header: '#8c3b03',
-                decorations: ["🌵", "🐫", "💀"]
-            },
-            candy: { 
-                bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', 
-                boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', 
-                light: '#ffeef3', dark: '#ffccd8', header: '#7209b7',
-                decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🍪"]
-            },
-            forest: { 
-                bg: 'linear-gradient(to bottom, #132a13, #432818)', 
-                boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', 
-                light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e',
-                decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🪵"]
-            },
-            magma: { 
-                bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', 
-                boardBg: 'linear-gradient(45deg, #111111, #260500)', 
-                light: '#ba2d13', dark: '#4a0e05', header: '#e05300',
-                decorations: ["🌋", "🔥"]
-            },
-            space: { 
-                bg: 'radial-gradient(circle, #2c003e 0%, #050014 100%)', 
-                boardBg: 'linear-gradient(to bottom, #03001e, #1f003a)', 
-                light: '#7303c0', dark: '#3a0066', header: '#240046',
-                decorations: ["🚀", "🪐", "👽", "⭐️", "☄️", "🛰️", "🌎", "🌙"]
-            },
-            snow: { 
-                bg: 'linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%)', 
-                boardBg: 'linear-gradient(to bottom, #ffffff, #e9ecef)', 
-                light: '#f8f9fa', dark: '#dee2e6', header: '#495057',
-                decorations: ["❄️", "☃️", "🐧", "🐻‍❄️"]
-            },
-            cyber: { 
-                bg: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)', 
-                boardBg: '#1e1b4b', light: '#312e81', dark: '#ff007f', header: '#4338ca',
-                decorations: ["👾", "🤖", "🌐"]
-            },
-            retro: { 
-                bg: '#000000', boardBg: '#111111', light: '#222222', dark: '#0a0a0a', header: '#333333',
-                decorations: ["🕹️", "👾", "🎮"]
-            }
+            classic: { bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30', decorations: ["🌱", "🌿", "🌲"] },
+            beach: { bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6', decorations: ["🦀", "🐚", "🌊"] },
+            desert: { bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', light: '#e6c280', dark: '#d9b473', header: '#8c3b03', decorations: ["🌵", "🐫", "💀"] },
+            candy: { bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', light: '#ffeef3', dark: '#ffccd8', header: '#7209b7', decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🍪"] },
+            forest: { bg: 'linear-gradient(to bottom, #132a13, #432818)', boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e', decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🪵"] },
+            magma: { bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', boardBg: 'linear-gradient(45deg, #111111, #260500)', light: '#ba2d13', dark: '#4a0e05', header: '#e05300', decorations: ["🌋", "🔥"] },
+            space: { bg: 'radial-gradient(circle, #2c003e 0%, #050014 100%)', boardBg: 'linear-gradient(to bottom, #03001e, #1f003a)', light: '#7303c0', dark: '#3a0066', header: '#240046', decorations: ["🚀", "🪐", "👽", "⭐️", "☄️", "🛰️", "🌎", "🌙"] },
+            snow: { bg: 'linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%)', boardBg: 'linear-gradient(to bottom, #ffffff, #e9ecef)', light: '#f8f9fa', dark: '#dee2e6', header: '#495057', decorations: ["❄️", "☃️", "🐧", "🐻‍❄️"] },
+            cyber: { bg: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)', boardBg: '#1e1b4b', light: '#312e81', dark: '#ff007f', header: '#4338ca', decorations: ["👾", "🤖", "🌐"] },
+            retro: { bg: '#000000', boardBg: '#111111', light: '#222222', dark: '#0a0a0a', header: '#333333', decorations: ["🕹️", "👾", "🎮"] }
         };
 
         const foodCategories = {
@@ -559,9 +527,10 @@
         }
 
         function updateSpeed() {
-            if (gameRunning) {
+            if (gameRunning && optGameMode.value !== "speedup") {
+                currentIntervalSpeed = parseInt(optGameSpeed.value);
                 clearInterval(gameInterval);
-                gameInterval = setInterval(mainGameLoop, parseInt(optGameSpeed.value));
+                gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
             }
         }
 
@@ -595,161 +564,4 @@
         function startGame() {
             clearBoardElements();
             
-            // Adjusted coordinates to fit scaling cleanly on grid lines
-            snake = [
-                { x: tileSize * 5, y: tileSize * 10 },
-                { x: tileSize * 4, y: tileSize * 10 },
-                { x: tileSize * 3, y: tileSize * 10 }
-            ];
-            dx = tileSize;
-            dy = 0;
-            score = 0;
-            scoreEl.textContent = score;
-            overlay.style.display = 'none';
-            nameInputBox.style.display = 'none';
-            gameRunning = true;
-            changingDirection = false;
-
-            foodList = [];
-            const targetFoodCount = parseInt(optFoodAmount.value);
-            for (let i = 0; i < targetFoodCount; i++) {
-                spawnFoodItem();
-            }
-
-            drawFood();
-            drawSnake();
-            
-            clearInterval(gameInterval);
-            gameInterval = setInterval(mainGameLoop, parseInt(optGameSpeed.value));
-        }
-
-        function mainGameLoop() {
-            if (hasGameEnded()) {
-                gameOver();
-                return;
-            }
-            changingDirection = false;
-            clearBoardElements();
-            moveSnake();
-            drawFood();
-            drawSnake();
-        }
-
-        function moveSnake() {
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            snake.unshift(head);
-
-            let ateFoodIndex = -1;
-            for (let i = 0; i < foodList.length; i++) {
-                if (head.x === foodList[i].x && head.y === foodList[i].y) {
-                    ateFoodIndex = i;
-                    break;
-                }
-            }
-
-            if (ateFoodIndex !== -1) {
-                score += 1;
-                scoreEl.textContent = score;
-                foodList.splice(ateFoodIndex, 1);
-                spawnFoodItem();
-            } else {
-                snake.pop();
-            }
-        }
-
-        function drawSnake() {
-            snake.forEach((part, index) => {
-                const snakePart = document.createElement('div');
-                snakePart.classList.add(index === 0 ? 'snake-head' : 'snake-body');
-                snakePart.style.left = `${part.x}px`;
-                snakePart.style.top = `${part.y}px`;
-                snakePart.style.backgroundColor = optSnakeColor.value;
-                
-                if (index === 0 && optAccessory.value !== "") {
-                    const accessory = document.createElement('div');
-                    accessory.classList.add('accessory-slot');
-                    accessory.textContent = optAccessory.value;
-                    snakePart.appendChild(accessory);
-                }
-                
-                board.appendChild(snakePart);
-            });
-        }
-
-        function spawnFoodItem() {
-            let newFood = { x: 0, y: 0 };
-            let validLocation = false;
-            while (!validLocation) {
-                newFood.x = Math.floor(Math.random() * gridCount) * tileSize;
-                newFood.y = Math.floor(Math.random() * gridCount) * tileSize;
-                validLocation = true;
-                snake.forEach(part => {
-                    if (part.x === newFood.x && part.y === newFood.y) validLocation = false;
-                });
-                foodList.forEach(food => {
-                    if (food.x === newFood.x && food.y === newFood.y) validLocation = false;
-                });
-            }
-            foodList.push(newFood);
-        }
-
-        function drawFood() {
-            foodList.forEach(food => {
-                const foodEl = document.createElement('div');
-                foodEl.classList.add('food-item');
-                foodEl.style.left = `${food.x}px`;
-                foodEl.style.top = `${food.y}px`;
-                foodEl.textContent = optFoodType.value;
-                board.appendChild(foodEl);
-            });
-        }
-
-        function clearBoardElements() {
-            document.querySelectorAll('.snake-head, .snake-body, .food-item').forEach(el => el.remove());
-        }
-
-        function changeDirection(event) {
-            const keyPressed = event.keyCode;
-            const LEFT = 37; const UP = 38; const RIGHT = 39; const DOWN = 40;
-            if (changingDirection) return;
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingRight = dx === tileSize;
-            const goingLeft = dx === -tileSize;
-
-            if (keyPressed === LEFT && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === UP && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
-            if (keyPressed === RIGHT && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === DOWN && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
-        }
-
-        function hasGameEnded() {
-            if (snake[0].x < 0 || snake[0].x >= board.clientWidth || snake[0].y < 0 || snake[0].y >= board.clientHeight) return true;
-            for (let i = 4; i < snake.length; i++) {
-                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
-            }
-            return false;
-        }
-
-        function gameOver() {
-            clearInterval(gameInterval);
-            gameRunning = false;
-            
-            saveScoreToLeaderboard(score);
-            
-            overlayText.textContent = "Game Over";
-            startBtn.textContent = "Play Again";
-            nameInputBox.style.display = 'flex';
-            overlay.style.display = 'flex';
-        }
-
-        window.addEventListener('keydown', changeDirection);
-        
-        // Initial configuration setup
-        populateFoodDropdown();
-        updateMapTheme();
-        loadLeaderboard();
-        nameInputBox.style.display = 'flex';
-    </script>
-</body>
-</html>
+            snake =
