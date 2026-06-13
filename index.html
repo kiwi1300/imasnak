@@ -267,6 +267,34 @@
             font-size: 16px;
         }
 
+        /* Blender Checkboxes Styling */
+        #blender-options-box {
+            background-color: #f7f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 6px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .blender-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .blender-checkbox-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
         .color-picker-wrapper {
             display: flex;
             align-items: center;
@@ -324,7 +352,19 @@
                     <option value="key">Key Mode</option>
                     <option value="light">Light Mode</option>
                     <option value="arrow">Arrow Mode</option>
+                    <option value="blender">🌪️ Blender Mode (Mix Styles)</option>
                 </select>
+
+                <div id="blender-options-box">
+                    <label style="font-size: 11px; color:#777;">Select Modes to Blend:</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="wall"> Wall Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="peaceful"> Peaceful Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="infinite"> Infinite Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="portal"> Portal Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="key"> Key Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="light"> Light Mode</label>
+                    <label class="blender-checkbox-item"><input type="checkbox" value="arrow"> Arrow Mode</label>
+                </div>
             </div>
 
             <div class="control-group">
@@ -440,6 +480,7 @@
         const lightMask = document.getElementById('light-mask');
 
         const optGameMode = document.getElementById('gameMode');
+        const blenderOptionsBox = document.getElementById('blender-options-box');
         const optSpecialMod = document.getElementById('specialMod');
         const optSnakeColor = document.getElementById('snakeColor');
         const colorHexSpan = document.getElementById('colorHex');
@@ -467,6 +508,11 @@
         let currentIntervalSpeed = 120;
         let gameRunning = false;
         let changingDirection = false;
+
+        // Configuration map containing active properties of blended modes
+        let blenderActiveModes = {
+            wall: false, peaceful: false, infinite: false, portal: false, key: false, light: false, arrow: false
+        };
 
         const themes = {
             classic: { bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30', decorations: ["🌱", "🌿", "🌲"] },
@@ -559,14 +605,45 @@
             }
         }
 
+        function isModeActive(modeName) {
+            if (optGameMode.value === "blender") {
+                return blenderActiveModes[modeName];
+            }
+            return optGameMode.value === modeName;
+        }
+
         function toggleModeSettings() {
             const mode = optGameMode.value;
-            if (mode === "portal" || mode === "key") {
+            
+            // Show/Hide Blender rules box
+            if (mode === "blender") {
+                blenderOptionsBox.style.display = 'flex';
+            } else {
+                blenderOptionsBox.style.display = 'none';
+            }
+
+            // UI Adjustments for quantity inputs
+            if (isModeActive("portal") || isModeActive("key")) {
                 fruitCountBox.style.display = 'none';
             } else {
                 fruitCountBox.style.display = 'flex';
             }
         }
+
+        // Monitors checkbox clicks inside Blender Mode panel dynamically
+        function syncBlenderCheckboxes() {
+            const checkboxes = blenderOptionsBox.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                blenderActiveModes[cb.value] = cb.checked;
+            });
+
+            if (isModeActive("portal") || isModeActive("key")) {
+                fruitCountBox.style.display = 'none';
+            } else {
+                fruitCountBox.style.display = 'flex';
+            }
+        }
+        blenderOptionsBox.addEventListener('change', syncBlenderCheckboxes);
 
         function loadLeaderboard() {
             leaderboardList.innerHTML = "";
@@ -615,16 +692,17 @@
             keyItem = null;
             isFruitUnlocked = false;
 
-            const mode = optGameMode.value;
             const modifier = optSpecialMod.value;
 
-            if (mode === "light") {
+            // Handle Light Mask Activation states
+            if (isModeActive("light")) {
                 lightMask.style.display = 'block';
             } else {
                 lightMask.style.display = 'none';
             }
 
-            if (mode === "wall") {
+            // Initialize Walls
+            if (isModeActive("wall")) {
                 for (let i = 0; i < 4; i++) spawnObstacleItem();
             }
 
@@ -632,15 +710,15 @@
             let targetFoodCount = parseInt(optFoodAmount.value);
             if (isNaN(targetFoodCount) || targetFoodCount < 1) targetFoodCount = 1;
             
-            if (mode === "portal") {
-                targetFoodCount = 2; // Portal mode explicitly spawns two identical fruits
+            if (isModeActive("portal")) {
+                targetFoodCount = 2; // Spawns portal ends
             }
-            if (mode === "key") {
+            if (isModeActive("key")) {
                 targetFoodCount = 1;
                 spawnKeyItem();
             }
-            if (modifier === "twin" && mode !== "portal" && mode !== "key") {
-                targetFoodCount += 1; // Twin Mod drops extra initial fruit splurges
+            if (modifier === "twin" && !isModeActive("portal") && !isModeActive("key")) {
+                targetFoodCount += 1;
             }
 
             for (let i = 0; i < targetFoodCount; i++) {
@@ -650,7 +728,7 @@
             drawObstacles();
             drawFood();
             drawSnake();
-            if (mode === "light") updateLightRadius();
+            if (isModeActive("light")) updateLightRadius();
             
             clearInterval(gameInterval);
             gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
@@ -672,18 +750,17 @@
             drawObstacles();
             drawFood();
             drawSnake();
-            if (optGameMode.value === "light") updateLightRadius();
+            if (isModeActive("light")) updateLightRadius();
         }
 
         function moveSnake() {
-            const mode = optGameMode.value;
             const modifier = optSpecialMod.value;
 
             let headX = snake[0].x + dx;
             let headY = snake[0].y + dy;
 
-            // --- Arrow Mode Handle Intersection ---
-            if (mode === "arrow") {
+            // Arrow Mode Track Marker Spawns
+            if (isModeActive("arrow")) {
                 const currentTileKey = `${snake[0].x},${snake[0].y}`;
                 if (!arrowTracks[currentTileKey]) {
                     let arrowSymbol = "▶";
@@ -692,22 +769,22 @@
                     if (dy === tileSize) arrowSymbol = "▼";
                     
                     arrowTracks[currentTileKey] = { dx: dx, dy: dy, symbol: arrowSymbol };
-                    const tileEl = document.getElementById(`tile-${currentTileKey}`);
+                    const tileEl = document.getElementById(`tile-${snake[0].x}-${snake[0].y}`);
                     if (tileEl) tileEl.textContent = arrowSymbol;
                 }
             }
 
-            // Route ahead scan validation checks
+            // Arrow Tracking Re-Routing
             const plannedNextKey = `${headX},${headY}`;
-            if (mode === "arrow" && arrowTracks[plannedNextKey]) {
+            if (isModeActive("arrow") && arrowTracks[plannedNextKey]) {
                 dx = arrowTracks[plannedNextKey].dx;
                 dy = arrowTracks[plannedNextKey].dy;
                 headX = snake[0].x + dx;
                 headY = snake[0].y + dy;
             }
 
-            // --- Infinite Mode & Peaceful Screen Boundaries Wrap Around ---
-            if (mode === "infinite" || mode === "peaceful") {
+            // Map Bounds Conversions (Wrap-around mechanics)
+            if (isModeActive("infinite") || isModeActive("peaceful")) {
                 if (headX < 0) headX = (gridCount - 1) * tileSize;
                 else if (headX >= gridCount * tileSize) headX = 0;
 
@@ -718,8 +795,8 @@
             const head = { x: headX, y: headY };
             snake.unshift(head);
 
-            // --- Key Grab Detection ---
-            if (mode === "key" && keyItem && head.x === keyItem.x && head.y === keyItem.y) {
+            // Key Collection Handle Logic
+            if (isModeActive("key") && keyItem && head.x === keyItem.x && head.y === keyItem.y) {
                 keyItem = null;
                 isFruitUnlocked = true;
             }
@@ -733,8 +810,7 @@
             }
 
             if (ateFoodIndex !== -1) {
-                // Key Block Condition
-                if (mode === "key" && !isFruitUnlocked) {
+                if (isModeActive("key") && !isFruitUnlocked) {
                     snake.pop(); 
                     return;
                 }
@@ -743,10 +819,9 @@
                 scoreEl.textContent = score;
                 foodList.splice(ateFoodIndex, 1);
 
-                // --- Portal Mode Teleportation Logic ---
-                if (mode === "portal" && foodList.length === 1) {
+                // Teleportation logic
+                if (isModeActive("portal") && foodList.length === 1) {
                     const linkedFruit = foodList[0];
-                    // Head snaps instantly over straight to linked node coordinates
                     snake[0].x = linkedFruit.x;
                     snake[0].y = linkedFruit.y;
                     foodList = [];
@@ -756,20 +831,16 @@
                     spawnFoodItem();
                 }
 
-                // Wall mode hurdle growth step scaling trigger 
-                if (mode === "wall") {
+                if (isModeActive("wall")) {
                     spawnObstacleItem();
                 }
 
-                // Recycle Key cycle setup
-                if (mode === "key") {
+                if (isModeActive("key")) {
                     isFruitUnlocked = false;
                     spawnKeyItem();
                 }
 
-                // --- Multi-Divide Mod Rule Exception ---
                 if (modifier === "multi" && score % 2 === 0) {
-                    // Splits / sheds tail piece burden segment offsets
                     snake.pop();
                 }
             } else {
@@ -778,7 +849,6 @@
         }
 
         function moveWingedFood() {
-            // 20% Chance per tick that any fruit moves to a random adjacent tile
             foodList.forEach(food => {
                 if (Math.random() < 0.20) {
                     const dirs = [
@@ -789,9 +859,7 @@
                     let newX = food.x + randomMove.x;
                     let newY = food.y + randomMove.y;
 
-                    // Bound clamping
                     if (newX >= 0 && newX < gridCount * tileSize && newY >= 0 && newY < gridCount * tileSize) {
-                        // Ensure it doesn't move onto an obstacle
                         let collision = obstacleList.some(obs => obs.x === newX && obs.y === newY);
                         if (!collision) {
                             food.x = newX;
@@ -807,7 +875,7 @@
                 const snakePart = document.createElement('div');
                 snakePart.classList.add(index === 0 ? 'snake-head' : 'snake-body');
                 snakePart.style.left = `${part.x}px`;
-                snakePart.style.top = `${part.y}px`;
+                snakePart.style.top = `${part.partY || part.y}px`;
                 snakePart.style.backgroundColor = optSnakeColor.value;
                 
                 if (index === 0 && optAccessory.value !== "") {
@@ -846,20 +914,23 @@
 
         function drawFood() {
             foodList.forEach(food => {
-                const foodEl = document.createElement('div');
-                foodEl.classList.add('food-item');
-                foodEl.style.left = `${food.x}px`;
-                foodEl.style.top = `${food.y}px`;
+                const item = document.createElement('div');
+                item.classList.add('food-item');
+                item.style.left = `${food.x}px`;
+                item.style.top = `${food.y}px`;
                 
-                if (optGameMode.value === "key" && !isFruitUnlocked) {
-                    foodEl.textContent = "📦";
+                if (isModeActive("portal")) {
+                    item.textContent = "🌀"; // Portal mode fruits are themed as portals
+                } else if (isModeActive("key") && !isFruitUnlocked) {
+                    item.textContent = "🔒"; // Locked fruit state
                 } else {
-                    foodEl.textContent = optFoodType.value;
+                    item.textContent = optFoodType.value;
                 }
-                board.appendChild(foodEl);
+                board.appendChild(item);
             });
 
-            if (optGameMode.value === "key" && keyItem) {
+            // Key element rendering logic loop entries
+            if (isModeActive("key") && keyItem) {
                 const keyEl = document.createElement('div');
                 keyEl.classList.add('key-item');
                 keyEl.style.left = `${keyItem.x}px`;
@@ -869,33 +940,16 @@
             }
         }
 
-        function spawnKeyItem() {
-            keyItem = { x: 0, y: 0 };
-            let validLocation = false;
-            while (!validLocation) {
-                keyItem.x = Math.floor(Math.random() * gridCount) * tileSize;
-                keyItem.y = Math.floor(Math.random() * gridCount) * tileSize;
-                validLocation = true;
-
-                snake.forEach(part => {
-                    if (part.x === keyItem.x && part.y === keyItem.y) validLocation = false;
-                });
-                foodList.forEach(food => {
-                    if (food.x === keyItem.x && food.y === keyItem.y) validLocation = false;
-                });
-            }
-        }
-
         function spawnObstacleItem() {
             let newObs = { x: 0, y: 0 };
             let validLocation = false;
-            while (!validLocation) {
+            let attempts = 0;
+            while (!validLocation && attempts < 200) {
                 newObs.x = Math.floor(Math.random() * gridCount) * tileSize;
                 newObs.y = Math.floor(Math.random() * gridCount) * tileSize;
                 validLocation = true;
+                attempts++;
 
-                if (newObs.y === tileSize * 10 && newObs.x < tileSize * 10) validLocation = false;
-                
                 snake.forEach(part => {
                     if (part.x === newObs.x && part.y === newObs.y) validLocation = false;
                 });
@@ -905,98 +959,123 @@
                 obstacleList.forEach(obs => {
                     if (obs.x === newObs.x && obs.y === newObs.y) validLocation = false;
                 });
+                // Avoid placing adjacent to snake head to prevent cheap deaths
+                if (Math.abs(snake[0].x - newObs.x) <= tileSize && Math.abs(snake[0].y - newObs.y) <= tileSize) {
+                    validLocation = false;
+                }
             }
-            obstacleList.push(newObs);
+            if (validLocation) obstacleList.push(newObs);
         }
 
         function drawObstacles() {
             obstacleList.forEach(obs => {
-                const obsEl = document.createElement('div');
-                obsEl.classList.add('obstacle-item');
-                obsEl.style.left = `${obs.x}px`;
-                obsEl.style.top = `${obs.y}px`;
-                obsEl.textContent = "🪨";
-                board.appendChild(obsEl);
+                const item = document.createElement('div');
+                item.classList.add('obstacle-item');
+                item.style.left = `${obs.x}px`;
+                item.style.top = `${obs.y}px`;
+                item.textContent = "🧱";
+                board.appendChild(item);
             });
         }
 
+        function spawnKeyItem() {
+            let newKey = { x: 0, y: 0 };
+            let validLocation = false;
+            while (!validLocation) {
+                newKey.x = Math.floor(Math.random() * gridCount) * tileSize;
+                newKey.y = Math.floor(Math.random() * gridCount) * tileSize;
+                validLocation = true;
+
+                snake.forEach(part => {
+                    if (part.x === newKey.x && part.y === newKey.y) validLocation = false;
+                });
+                foodList.forEach(food => {
+                    if (food.x === newKey.x && food.y === newKey.y) validLocation = false;
+                });
+                obstacleList.forEach(obs => {
+                    if (obs.x === newKey.x && obs.y === newKey.y) validLocation = false;
+                });
+            }
+            keyItem = newKey;
+        }
+
         function updateLightRadius() {
-            if (!snake.length) return;
-            const headX = snake[0].x + (tileSize / 2);
-            const headY = snake[0].y + (tileSize / 2);
-            lightMask.style.background = `radial-gradient(circle 95px at ${headX}px ${headY}px, transparent 100%, rgba(0,0,0,0.97) 100%)`;
+            const headX = snake[0].x + tileSize/2;
+            const headY = snake[0].y + tileSize/2;
+            // Draws light mask layout configurations around snake head coordinate
+            lightMask.style.background = `radial-gradient(circle 120px at ${headX}px ${headY}px, transparent 100%, rgba(0,0,0,0.98) 100%)`;
+        }
+
+        function hasGameEnded() {
+            const head = snake[0];
+            const nextX = head.x + dx;
+            const nextY = head.y + dy;
+
+            // Collision check exemptions for Peaceful Mode
+            if (isModeActive("peaceful")) {
+                return false;
+            }
+
+            // Non-wrapping bounds evaluation checks
+            if (!isModeActive("infinite")) {
+                if (nextX < 0 || nextX >= gridCount * tileSize || nextY < 0 || nextY >= gridCount * tileSize) {
+                    return true;
+                }
+            }
+
+            // Hurdle wall impact verification
+            let hitObstacle = obstacleList.some(obs => obs.x === nextX && obs.y === nextY);
+            if (hitObstacle) return true;
+
+            // Tail self bite check loops
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === nextX && snake[i].y === nextY) return true;
+            }
+
+            return false;
         }
 
         function clearBoardElements() {
             document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item, .key-item').forEach(el => el.remove());
         }
 
-        function changeDirection(event) {
-            const keyPressed = event.keyCode;
-            const LEFT = 37; const UP = 38; const RIGHT = 39; const DOWN = 40;
-            if (changingDirection) return;
-            
-            if (optGameMode.value === "arrow") {
-                const currentTileKey = `${snake[0].x},${snake[0].y}`;
-                if (arrowTracks[currentTileKey]) return; // Forced track routing lockout active
-            }
-
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingRight = dx === tileSize;
-            const goingLeft = dx === -tileSize;
-
-            if (keyPressed === LEFT && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === UP && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
-            if (keyPressed === RIGHT && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
-            if (keyPressed === DOWN && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
-        }
-
-        function hasGameEnded() {
-            if (optGameMode.value === "peaceful") return false;
-
-            // Bounds Border Collision checks
-            if (optGameMode.value !== "infinite") {
-                if (snake[0].x < 0 || snake[0].x >= board.clientWidth || snake[0].y < 0 || snake[0].y >= board.clientHeight) return true;
-            }
-            
-            // Tail Segment Intersections
-            for (let i = 4; i < snake.length; i++) {
-                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
-            }
-
-            // Wall Obstacles
-            if (optGameMode.value === "wall") {
-                for (let i = 0; i < obstacleList.length; i++) {
-                    if (snake[0].x === obstacleList[i].x && snake[0].y === obstacleList[i].y) return true;
-                }
-            }
-            return false;
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameInterval);
+            overlayText.textContent = "Game Over";
+            overlay.style.display = 'flex';
+            nameInputBox.style.display = 'flex';
+            saveScoreToLeaderboard(score);
         }
 
         function forceEndRound() {
-            if (gameRunning) gameOver();
+            if (gameRunning) {
+                gameOver();
+            }
         }
 
-        function gameOver() {
-            clearInterval(gameInterval);
-            gameRunning = false;
-            lightMask.style.display = 'none';
+        function handleInput(e) {
+            if (!gameRunning || changingDirection) return;
+            const key = e.key;
             
-            saveScoreToLeaderboard(score);
-            
-            overlayText.textContent = "Game Over";
-            startBtn.textContent = "Play Again";
-            nameInputBox.style.display = 'flex';
-            overlay.style.display = 'flex';
+            const goingUp = (dy === -tileSize);
+            const goingDown = (dy === tileSize);
+            const goingRight = (dx === tileSize);
+            const goingLeft = (dx === -tileSize);
+
+            if ((key === 'ArrowLeft' || key === 'a' || key === 'A') && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
+            if ((key === 'ArrowUp' || key === 'w' || key === 'W') && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
+            if ((key === 'ArrowRight' || key === 'd' || key === 'D') && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
+            if ((key === 'ArrowDown' || key === 's' || key === 'S') && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
         }
 
-        window.addEventListener('keydown', changeDirection);
-        
+        window.addEventListener('keydown', handleInput);
+
+        // Run setup components
         populateFoodDropdown();
         updateMapTheme();
+        updateFoodIcon();
         loadLeaderboard();
-        nameInputBox.style.display = 'flex';
         toggleModeSettings();
     </script>
 </body>
