@@ -110,7 +110,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 14px;
-            color: rgba(0, 0, 0, 0.15);
+            color: rgba(0, 0, 0, 0.04);
             user-select: none;
         }
 
@@ -185,7 +185,7 @@
             z-index: 3;
             transform-origin: bottom center;
             animation: flick 0.15s infinite alternate;
-            display: none;
+            display: block;
         }
 
         @keyframes flick {
@@ -209,7 +209,7 @@
             z-index: 5;
         }
 
-        .food-item, .obstacle-item, .key-item {
+        .food-item, .obstacle-item, .key-item, .lock-item {
             position: absolute;
             width: 30px;
             height: 30px;
@@ -414,4 +414,113 @@
                     <option value="infinite">Infinite Mode</option>
                     <option value="portal">Portal Mode</option>
                     <option value="key">Key Mode</option>
-                    <option value="light
+                    <option value="blender">Blender Mode</option>
+                </select>
+
+                <div id="blender-options-box">
+                    <label class="blender-checkbox-item">
+                        <input type="checkbox" id="blend-wall"> Wall Spawns
+                    </label>
+                    <label class="blender-checkbox-item">
+                        <input type="checkbox" id="blend-peaceful"> No Self-Harm
+                    </label>
+                    <label class="blender-checkbox-item">
+                        <input type="checkbox" id="blend-infinite"> Infinite Board Loop
+                    </label>
+                    <label class="blender-checkbox-item">
+                        <input type="checkbox" id="blend-portal"> Magic Portals
+                    </label>
+                    <label class="blender-checkbox-item">
+                        <input type="checkbox" id="blend-key"> Locked Vault Blocks
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Environment Theme</label>
+                <select id="envTheme" onchange="applyEnvironmentTheme()">
+                    <option value="garden">Classic Garden</option>
+                    <option value="desert">Sandy Desert</option>
+                    <option value="neon">Cyber Neon Night</option>
+                    <option value="arctic">Frosty Arctic</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Snake Aesthetic Color</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="snakeColor" value="#4674e9" onchange="applySnakeColor()">
+                    <span id="colorHexText">#4674e9</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Accessory Uniform</label>
+                <select id="snakeAccessory">
+                    <option value="none">None</option>
+                    <option value="👑">Royal Crown 👑</option>
+                    <option value="🎩">Top Hat 🎩</option>
+                    <option value="🕶️">Cool Sunglasses 🕶️</option>
+                    <option value="🎀">Cute Ribbon 🎀</option>
+                    <option value="🚀">Jetpack Backpack 🚀</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Preferred Snack Style</label>
+                <select id="foodType">
+                    <option value="🍎">Crisp Apple 🍎</option>
+                    <option value="🍌">Sweet Banana 🍌</option>
+                    <option value="🍕">Cheesy Pizza Slice 🍕</option>
+                    <option value="🍩">Glazed Donut 🍩</option>
+                    <option value="🥑">Fresh Avocado 🥑</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main-column">
+            <div id="game-stage">
+                <div id="score-bar">
+                    <div class="stat"><span id="score-icon">🍎</span> <span id="current-score">0</span></div>
+                    <div class="stat">🏆 <span id="high-score">0</span></div>
+                </div>
+                
+                <div id="game-board">
+                    <div id="light-mask"></div>
+                    
+                    <div id="overlay">
+                        <h2 id="overlay-title">Snake Run</h2>
+                        <div id="name-input-box">
+                            <input type="text" id="player-name" placeholder="Enter Runner Name" maxlength="12">
+                        </div>
+                        <button id="start-btn" onclick="startGame()">Start Game</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="end-round-btn" onclick="endGameEarly()">End Round Early</button>
+        </div>
+
+        <div class="side-panel">
+            <h3>Leaderboard</h3>
+            <ul id="leaderboard-list">
+                </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // Game Constants & Sizing Parameters
+        const BOARD_SIZE = 600;
+        const TILE_SIZE = 30;
+        const GRID_COUNT = BOARD_SIZE / TILE_SIZE; // 20x20 Grid
+
+        // Game State Variables
+        let snake = [];
+        let direction = { x: 0, y: -1 };
+        let nextDirection = { x: 0, y: -1 };
+        let food = { x: 0, y: 0 };
+        let score = 0;
+        let highScore = 0;
+        let gameInterval = null;
+        let
