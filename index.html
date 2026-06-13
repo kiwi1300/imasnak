@@ -3,679 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Customizable Snake Game (Google Style)</title>
+    <title>Custom Google Snake Clone</title>
     <style>
         body {
-            background-color: #4a752c;
+            background-color: #1a1a1a;
+            color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
+            justify-content: center;
+            height: 100vh;
             margin: 0;
-            padding: 30px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            transition: background 0.5s ease;
-            position: relative;
-        }
-
-        #theme-decorations {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
         }
-
-        .ambient-item {
-            position: absolute;
-            font-size: 42px;
-            opacity: 0.85;
-            animation: floatAmbient 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes floatAmbient {
-            0% { transform: translateY(0px) rotate(0deg); }
-            100% { transform: translateY(-15px) rotate(10deg); }
-        }
-
-        .game-container {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
+        #game-container {
             position: relative;
-            z-index: 1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
         }
-
-        .main-column {
+        canvas {
+            display: block;
+            background-color: #4caf50;
+        }
+        /* UI Overlay Styling */
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            background-color: #4285f4;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        #game-stage {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: transparent;
-        }
-
-        #game-stage:fullscreen {
-            width: 600px !important;
-            height: 670px !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            transform: scale(min(calc(100vh / 700px), calc(100vw / 630px)));
-            transform-origin: center center;
-            background-color: transparent;
-        }
-
-        #score-bar {
-            background-color: #4e7a30;
-            width: 600px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            box-shadow: 0 6px 8px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
-        }
-
-        .stat {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
-
-        #game-board {
-            width: 600px;
-            height: 600px;
-            background-color: #aad751;
-            position: relative;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            overflow: hidden;
-            transition: background 0.5s ease;
-        }
-
-        .grid-tile {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            transition: background-color 0.3s;
+        .stats-container {
+            background-color: #8ab4f8;
+            border-radius: 6px;
+            padding: 15px;
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-            color: rgba(0, 0, 0, 0.15);
-            user-select: none;
-        }
-
-        #light-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            pointer-events: none;
-            z-index: 5;
-            display: none;
-            mix-blend-mode: multiply;
-        }
-
-        /* --- GOOGLE STYLE SNAKE MODIFICATIONS --- */
-        .snake-head {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            z-index: 4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px 12px 4px 4px; /* Default facing up look */
-            transition: transform 0.1s linear;
-        }
-
-        /* Google Snake Eyes container */
-        .snake-eyes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 4px;
-            box-sizing: border-box;
-        }
-
-        .eye {
-            width: 7px;
-            height: 7px;
-            background-color: white;
-            border-radius: 50%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pupil {
-            width: 4px;
-            height: 4px;
-            background-color: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 1px; /* Looks forward */
-        }
-
-        .snake-body {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            z-index: 2;
-            border-radius: 4px;
-        }
-
-        .accessory-slot {
-            position: absolute;
-            font-size: 22px;
-            top: -12px;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .food-item, .obstacle-item, .key-item {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-size: 24px;
-            transition: top 0.2s ease, left 0.2s ease;
+            font-weight: bold;
         }
-
-        #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
+        .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            z-index: 10;
+            gap: 5px;
         }
-
-        #overlay h2 {
+        .btn {
+            background-color: #1a73e8;
             color: white;
-            margin: 0 0 20px 0;
-            font-size: 46px;
-        }
-
-        #name-input-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        #player-name {
+            border: none;
             padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-size: 20px;
-            text-align: center;
-            width: 250px;
-        }
-
-        #start-btn {
-            background-color: #4674e9;
-            color: white;
-            border: none;
-            padding: 16px 45px;
-            font-size: 24px;
+            border-radius: 6px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s;
         }
-
-        #start-btn:hover { background-color: #355ec4; }
-
-        #end-round-btn {
-            background-color: #d90429;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 18px;
+        .btn:hover {
+            background-color: #1557b0;
+        }
+        .hidden {
+            display: none !important;
+        }
+        #top-bar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
             font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: background 0.2s, transform 0.1s;
-        }
-        #end-round-btn:hover { background-color: #b30322; }
-        #end-round-btn:active { transform: scale(0.98); }
-
-        .side-panel {
-            background-color: white;
-            width: 380px;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-
-        .side-panel h3 { 
-            margin-top: 0; 
-            color: #333; 
-            font-size: 26px;
-            border-bottom: 3px solid #eee; 
-            padding-bottom: 10px;
-        }
-
-        #custom-panel {
             display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .control-group label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .control-group select, .control-group input {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-
-        #blender-options-box {
-            background-color: #f7f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .blender-checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            color: #444;
-            cursor: pointer;
-        }
-
-        .blender-checkbox-item input {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .color-picker-wrapper {
-            display: flex;
-            align-items: center;
             gap: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
-
-        .color-picker-wrapper input[type="color"] {
-            border: none;
-            width: 55px;
-            height: 40px;
-            cursor: pointer;
-            padding: 0;
-            background: none;
-        }
-
-        .color-picker-wrapper span {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        #leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #leaderboard-list li {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-            font-size: 18px;
-            font-weight: 500;
-        }
-        #leaderboard-list li:first-child { color: gold; font-weight: bold; font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="theme-decorations"></div>
-
-    <div class="game-container">
-        
-        <div class="side-panel" id="custom-panel">
-            <h3>Customization</h3>
-            
-            <div class="control-group">
-                <label>Game Mode</label>
-                <select id="gameMode" onchange="toggleModeSettings()">
-                    <option value="classic">Classic Mode</option>
-                    <option value="wall">Wall Mode</option>
-                    <option value="peaceful">Peaceful Mode</option>
-                    <option value="infinite">Infinite Mode</option>
-                    <option value="portal">Portal Mode</option>
-                    <option value="key">Key Mode</option>
-                    <option value="light">Light Mode</option>
-                    <option value="arrow">Arrow Mode</option>
-                    <option value="blender">🌪️ Blender Mode (Mix Styles)</option>
-                </select>
-
-                <div id="blender-options-box">
-                    <label style="font-size: 11px; color:#777;">Select Modes to Blend:</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="wall"> Wall Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="peaceful"> Peaceful Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="infinite"> Infinite Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="portal"> Portal Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="key"> Key Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="light"> Light Mode</label>
-                    <label class="blender-checkbox-item"><input type="checkbox" value="arrow"> Arrow Mode</label>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Special Modifiers</label>
-                <select id="specialMod">
-                    <option value="none">Standard Fruit Behavior</option>
-                    <option value="twin">Twin Mode (Extra Food Splurges)</option>
-                    <option value="winged">Winged Mode (Flying/Moving Fruits)</option>
-                    <option value="multi">Multi-Divide Mode (Splits Growth Rate)</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Snake Color</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" id="snakeColor" value="#4674e9" onchange="updateStyles()">
-                    <span id="colorHex">#4674E9</span>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Accessory</label>
-                <select id="snakeAccessory">
-                    <option value="">None</option>
-                    <option value="👑">Crown 👑</option>
-                    <option value="🕶️">Sunglasses 🕶️</option>
-                    <option value="🤠">Cowboy Hat 🤠</option>
-                    <option value="🎩">Top Hat 🎩</option>
-                    <option value="🎀">Ribbon Bow 🎀</option>
-                    <option value="🎧">Headphones 🎧</option>
-                    <option value="😇">Halo 😇</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Theme & Environment</label>
-                <select id="mapTheme" onchange="updateMapTheme()">
-                    <option value="classic">Google Green (Classic)</option>
-                    <option value="beach">🏖️ Turquoise Beach</option>
-                    <option value="desert">🏜️ Outback Desert</option>
-                    <option value="candy">🍬 Sweet Candy Kingdom</option>
-                    <option value="forest">🌲 Deep Grizzly Forest</option>
-                    <option value="magma">🌋 Volcanic Magma Cave</option>
-                    <option value="space">🚀 Deep Outer Space</option>
-                    <option value="snow">❄️ Arctic Ice Blizzard</option>
-                    <option value="cyber">⚡ Neon Cyber Grid</option>
-                    <option value="retro">🕹️ Old-School Arcade</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Food Item Base</label>
-                <select id="foodType" onchange="updateFoodIcon()">
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Speed Mods</label>
-                <select id="gameSpeed" onchange="updateSpeed()">
-                    <option value="200">Slow Speed</option>
-                    <option value="120" selected>Normal Speed</option>
-                    <option value="60">Fast Speed</option>
-                </select>
-            </div>
-
-            <div class="control-group" id="fruitCountBox">
-                <label>Fruit Quantities</label>
-                <input type="number" id="foodAmount" value="1" min="1" max="30">
-            </div>
-        </div>
-
-        <div class="main-column">
-            <div id="game-stage">
-                <div id="score-bar">
-                    <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
-                    <div class="stat">🏆 <span id="high-score">0</span></div>
-                </div>
-
-                <div id="game-board">
-                    <div id="light-mask"></div>
-                    <div id="overlay">
-                        <h2 id="overlay-text">Snake Game</h2>
-                        <div id="name-input-box">
-                            <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
-                            <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
-                        </div>
-                        <button id="start-btn" onclick="startGame()">Play</button>
-                    </div>
-                </div>
-            </div>
-
-            <button id="end-round-btn" onclick="forceEndRound()">End Round</button>
-        </div>
-
-        <div class="side-panel">
-            <h3>Leaderboard</h3>
-            <ul id="leaderboard-list">
-            </ul>
-        </div>
-
+<div id="game-container">
+    <div id="top-bar">
+        <span id="hud-score">🍎 0</span>
+        <span id="hud-trophy">🏆 0</span>
     </div>
 
-    <script>
-        const board = document.getElementById('game-board');
-        const stage = document.getElementById('game-stage'); 
-        const scoreEl = document.getElementById('score');
-        const highScoreEl = document.getElementById('high-score');
-        const scoreIconEl = document.getElementById('score-icon');
-        const overlay = document.getElementById('overlay');
-        const overlayText = document.getElementById('overlay-text');
-        const startBtn = document.getElementById('start-btn');
-        const nameInputBox = document.getElementById('name-input-box');
-        const playerNameInput = document.getElementById('player-name');
-        const leaderboardList = document.getElementById('leaderboard-list');
-        const decorContainer = document.getElementById('theme-decorations');
-        const lightMask = document.getElementById('light-mask');
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
 
-        const optGameMode = document.getElementById('gameMode');
-        const blenderOptionsBox = document.getElementById('blender-options-box');
-        const optSpecialMod = document.getElementById('specialMod');
-        const optSnakeColor = document.getElementById('snakeColor');
-        const colorHexSpan = document.getElementById('colorHex');
-        const optAccessory = document.getElementById('snakeAccessory');
-        const optMapTheme = document.getElementById('mapTheme');
-        const optFoodType = document.getElementById('foodType');
-        const optGameSpeed = document.getElementById('gameSpeed');
-        const optFoodAmount = document.getElementById('foodAmount');
-        const fruitCountBox = document.getElementById('fruitCountBox');
+    <div id="main-menu" class="overlay">
+        <div class="stats-container">
+            <div class="stat-item"><span>🍎</span><span id="menu-score">0</span></div>
+            <div class="stat-item"><span>🏆</span><span id="menu-high">0</span></div>
+        </div>
+        <button class="btn" onclick="startGame('normal')">▶ Play</button>
+        <button class="btn" onclick="toggleDailyChallengeMenu()">⭐ Daily Challenge</button>
+    </div>
 
-        const tileSize = 30; 
-        const gridCount = 20; 
+    <div id="daily-menu" class="overlay hidden">
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: -5px;">Daily Challenge</div>
+        <div style="font-size: 12px; opacity: 0.8;" id="current-date">2026-06-13</div>
+        <div class="stats-container" style="font-size: 18px;">
+            <div>🌀 Portals</div>
+            <div>📦 Crates</div>
+        </div>
+        <button class="btn" onclick="startGame('challenge')">▶ Play Challenge</button>
+        <button class="btn" style="background-color: #5f6368;" onclick="showMainMenu()">⬅ Back</button>
+    </div>
+</div>
 
-        let snake = [];
-        let foodList = [];
-        let obstacleList = [];
-        let arrowTracks = {}; 
-        let keyItem = null; 
-        let isFruitUnlocked = false;
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-        let dx = tileSize;
-        let dy = 0;
-        let score = 0;
-        let gameInterval;
-        let currentIntervalSpeed = 120;
-        let gameRunning = false;
-        let changingDirection = false;
+    // Grid details
+    const gridSize = 20; 
+    const tileCount = canvas.width / gridSize;
 
-        let blenderActiveModes = {
-            wall: false, peaceful: false, infinite: false, portal: false, key: false, light: false, arrow: false
-        };
+    // Game state tracking
+    let gameInterval;
+    let gameMode = 'normal'; // 'normal' or 'challenge'
+    let score = 0;
+    let highScore = 0;
+    let gameOver = true;
 
-        const themes = {
-            classic: { bg: '#4a752c', boardBg: '#aad751', light: '#aad751', dark: '#a2d149', header: '#4e7a30', decorations: ["🌱", "🌿", "🌲"] },
-            beach: { bg: 'linear-gradient(to bottom, #00afb9, #fed9b7)', boardBg: 'linear-gradient(to bottom, #00f2fe 0%, #4facfe 55%, #f7f0da 55%, #f5e6ca 100%)', light: 'rgba(255,255,255,0.12)', dark: 'rgba(0,0,0,0.04)', header: '#0077b6', decorations: ["🦀", "🐚", "🌊"] },
-            desert: { bg: 'linear-gradient(to bottom, #b85d19, #5c2c04)', boardBg: 'linear-gradient(to bottom, #d9b473, #a68142)', light: '#e6c280', dark: '#d9b473', header: '#8c3b03', decorations: ["🌵", "🐫", "💀"] },
-            candy: { bg: 'linear-gradient(to top, #ff9a9e 0%, #fecfef 99%)', boardBg: 'linear-gradient(to bottom, #ff70a6, #ff97b7)', light: '#ffeef3', dark: '#ffccd8', header: '#7209b7', decorations: ["🍬", "🍭", "🍫", "🧁", "🍩", "🍪"] },
-            forest: { bg: 'linear-gradient(to bottom, #132a13, #432818)', boardBg: 'linear-gradient(to bottom, #1b4332, #2d6a4f)', light: '#40916c', dark: '#2d6a4f', header: '#5c3d2e', decorations: ["🌲", "🐻", "🌳", "🍄", "🦊", "🪵"] },
-            magma: { bg: 'linear-gradient(to bottom, #1a0f0f, #000000)', boardBg: 'linear-gradient(45deg, #111111, #260500)', light: '#ba2d13', dark: '#4a0e05', header: '#e05300', decorations: ["🌋", "🔥"] },
-            space: { bg: 'radial-gradient(circle, #2c003e 0%, #050014 100%)', boardBg: 'linear-gradient(to bottom, #03001e, #1f003a)', light: '#7303c0', dark: '#3a0066', header: '#240046', decorations: ["🚀", "🪐", "👽", "⭐️", "☄️", "🛰️", "🌎", "🌙"] },
-            snow: { bg: 'linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%)', boardBg: 'linear-gradient(to bottom, #ffffff, #e9ecef)', light: '#f8f9fa', dark: '#dee2e6', header: '#495057', decorations: ["❄️", "☃️", "🐧", "🐻‍❄️"] },
-            cyber: { bg: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)', boardBg: '#1e1b4b', light: '#312e81', dark: '#ff007f', header: '#4338ca', decorations: ["👾", "🤖", "🌐"] },
-            retro: { bg: '#000000', boardBg: '#111111', light: '#222222', dark: '#0a0a0a', header: '#333333', decorations: ["🕹️", "👾", "🎮"] }
-        };
+    // Snake properties
+    let snake = [];
+    let direction = { x: 1, y: 0 };
+    let nextDirection = { x: 1, y: 0 };
 
-        const foodCategories = {
-            "Fruits": ["🍎","🍏","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥝","🍅"],
-            "Meals & Sweets": ["🍔","🍟","🍕","🥪","🌮","🍿","🍩","🍪","🎂","🍫","🍬","🍭","🍦"]
-        };
+    // Interactive Entities
+    let apple = { x: 0, y: 0 };
+    let crates = [];
+    let dynamicGoals = [];
+    let portals = [];
 
-        function clearBoardElements() {
-            document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item, .key-item, .accessory-slot').forEach(el => el.remove());
+    // System clock configuration for UI styling matching video context
+    document.getElementById('current-date').innerText = new Date().toISOString().split('T')[0];
+
+    // Initialize Menu States
+    showMainMenu();
+
+    function showMainMenu() {
+        document.getElementById('main-menu').classList.remove('hidden');
+        document.getElementById('daily-menu').classList.add('hidden');
+        document.getElementById('menu-score').innerText = score;
+        document.getElementById('menu-high').innerText = highScore;
+    }
+
+    function toggleDailyChallengeMenu() {
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('daily-menu').classList.remove('hidden');
+    }
+
+    function startGame(mode) {
+        gameMode = mode;
+        gameOver = false;
+        score = 0;
+        direction = { x: 1, y: 0 };
+        nextDirection = { x: 1, y: 0 };
+        
+        // Document UI resetting
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('daily-menu').classList.add('hidden');
+        updateHUD();
+
+        // Initial Snake Layout (Middle grid alignment)
+        snake = [
+            { x: 10, y: 15 },
+            { x: 9, y: 15 },
+            { x: 8, y: 15 }
+        ];
+
+        // Clean-up context arrays
+        crates = [];
+        dynamicGoals = [];
+        portals = [];
+
+        if (gameMode === 'normal') {
+            spawnApple();
+        } else {
+            // Daily challenge layout mimics video modifiers
+            spawnChallengeElements();
         }
 
-        function forceEndRound() {
-            if (gameRunning) gameOver();
-        }
+        clearInterval(gameInterval);
+        gameInterval = setInterval(gameLoop, 120); // Smooth update ticks
+    }
 
-        function populateFoodDropdown() {
-            for (const [category, items] of Object.entries(foodCategories)) {
-                const group = document.createElement('optgroup');
-                group.label = category;
-                items.forEach(emoji => {
-                    const opt = document.createElement('option');
-                    opt.value = emoji;
-                    opt.textContent = emoji;
-                    group.appendChild(opt);
-                });
-                optFoodType.appendChild(group);
-            }
-            optFoodType.selectedIndex = 0;
-        }
-
-        function createGrid() {
-            document.querySelectorAll('.grid-tile').forEach(el => el.remove());
-            const currentTheme = themes[optMapTheme.value];
-            for (let row = 0; row < gridCount; row++) {
-                for (let col = 0; col < gridCount; col++) {
-                    const tile = document.createElement('div');
-                    tile.classList.add('grid-tile');
-                    tile.id = `tile-${col * tileSize}-${row * tileSize}`;
-                    tile.style.left = `${col * tileSize}px`;
-                    tile.style.top = `${row * tileSize}px`;
-                    tile.style.backgroundColor = ((row + col) % 2 !== 0) ? currentTheme.dark : currentTheme.light;
-                    board.insertBefore(tile, board.firstChild);
-                }
-            }
-        }
-
-        function spawnThemeDecorations(themeKey) {
-            decorContainer.innerHTML = '';
-            const activeTheme = themes[themeKey];
-            for (let i = 0; i < 16; i++) {
-                const item = document.createElement('div');
-                item.classList.add('ambient-item');
-                item.textContent = activeTheme.decorations[Math.floor(Math.random() * activeTheme.decorations.length)];
-                item.style.left = `${Math.random() * 92}%`;
-                item.style.top = `${Math.random() * 92}%`;
-                item.style.animationDelay = `${Math.random() * 2}s`;
-                decorContainer.appendChild(item);
+    function spawnApple() {
+        apple.x = Math.floor(Math.random() * tileCount);
+        apple.y = Math.floor(Math.random() * tileCount);
+        
+        // Avoid spawning directly on top of the snake body structure
+        for (let cell of snake) {
+            if (cell.x === apple.x && cell.y === apple.y) {
+                spawnApple();
+                break;
             }
         }
+    }
 
-        function updateMapTheme() {
-            const currentTheme = themes[optMapTheme.value];
-            document.body.style.background = currentTheme.bg;
-            board.style.background = currentTheme.boardBg;
-            document.getElementById('score-bar').style.backgroundColor = currentTheme.header;
-            createGrid();
-            spawnThemeDecorations(optMapTheme.value);
-        }
-
-        function updateStyles() {
-            colorHexSpan.textContent = optSnakeColor.value.toUpperCase();
-            drawSnake();
-        }
-
-        window.addEventListener("keydown", e => {
-            if (!gameRunning || changingDirection) return;
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingRight = dx === tileSize;
-            const goingLeft = dx === -tileSize;
-
-            if (e.key === "ArrowLeft" && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
-            if (e.key === "ArrowUp" && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
-            if (e.key === "ArrowRight" && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
-            if (e.key === "ArrowDown" && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
-        });
-
-        function updateFoodIcon() {
-            scoreIconEl.textContent = optFoodType.value;
-        }
-
-        function updateSpeed() {
-            if (gameRunning) {
-                currentIntervalSpeed = parseInt(optGameSpeed.value);
-                clearInterval(gameInterval);
-                gameInterval = setInterval(mainGameLoop, currentIntervalSpeed);
-            }
+    function spawnChallengeElements() {
+        // Generate a random pushable crate target
+        crates.push({ x: Math.floor(Math.random() * (tileCount - 4)) + 2, y: Math.floor(Math.random() * (tileCount - 4)) + 2 });
+        // Place a structural map floor tile goal sequence 
+        dynamicGoals.push({ x: Math.floor(Math.random() * (tileCount - 4)) + 2, y: Math.floor(Math.random() * (tileCount - 4)) + 2 });
+        
+        // Establish bidirectional portal pairing paths
+        portals =
