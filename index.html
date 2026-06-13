@@ -59,6 +59,28 @@
             align-items: center;
         }
 
+        /* Container that encloses both the score-bar and the board */
+        #game-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: transparent;
+        }
+
+        /* --- Fullscreen Scaling Trick --- */
+        #game-stage:fullscreen {
+            width: 600px !important;
+            height: 670px !important; /* 600px board + 70px score-bar */
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            /* Scale automatically to whichever window edge it hits first */
+            transform: scale(min(calc(100vh / 700px), calc(100vw / 630px)));
+            transform-origin: center center;
+            background-color: transparent;
+        }
+
         #score-bar {
             background-color: #4e7a30;
             width: 600px;
@@ -91,17 +113,6 @@
             border-bottom-right-radius: 15px;
             overflow: hidden;
             transition: background 0.5s ease;
-        }
-
-        /* Fullscreen adjustments to keep the game dimensions centered */
-        #game-board:fullscreen {
-            width: 600px !important;
-            height: 600px !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            border-radius: 15px;
         }
 
         .grid-tile {
@@ -447,20 +458,22 @@
         </div>
 
         <div class="main-column">
-            <div id="score-bar">
-                <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
-                <div class="stat">🏆 <span id="high-score">0</span></div>
-            </div>
+            <div id="game-stage">
+                <div id="score-bar">
+                    <div class="stat"><span id="score-icon">🍎</span> <span id="score">0</span></div>
+                    <div class="stat">🏆 <span id="high-score">0</span></div>
+                </div>
 
-            <div id="game-board">
-                <div id="light-mask"></div>
-                <div id="overlay">
-                    <h2 id="overlay-text">Snake Game</h2>
-                    <div id="name-input-box">
-                        <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
-                        <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
+                <div id="game-board">
+                    <div id="light-mask"></div>
+                    <div id="overlay">
+                        <h2 id="overlay-text">Snake Game</h2>
+                        <div id="name-input-box">
+                            <label style="color: white; font-size: 16px;">Enter your name for Leaderboard:</label>
+                            <input type="text" id="player-name" placeholder="Player 1" maxlength="12">
+                        </div>
+                        <button id="start-btn" onclick="startGame()">Play</button>
                     </div>
-                    <button id="start-btn" onclick="startGame()">Play</button>
                 </div>
             </div>
 
@@ -477,6 +490,7 @@
 
     <script>
         const board = document.getElementById('game-board');
+        const stage = document.getElementById('game-stage'); // Defined game stage
         const scoreEl = document.getElementById('score');
         const highScoreEl = document.getElementById('high-score');
         const scoreIconEl = document.getElementById('score-icon');
@@ -541,7 +555,6 @@
             "Meals & Sweets": ["🍔","🍟","🍕","🥪","🌮","🍿","🍩","🍪","🎂","🍫","🍬","🍭","🍦"]
         };
 
-        // Extra dynamic functions needed to safely clean graphics
         function clearBoardElements() {
             document.querySelectorAll('.snake-head, .snake-body, .food-item, .obstacle-item, .key-item, .accessory-slot').forEach(el => el.remove());
         }
@@ -610,6 +623,20 @@
                 el.style.backgroundColor = optSnakeColor.value;
             });
         }
+
+        // Key directions listener
+        window.addEventListener("keydown", e => {
+            if (!gameRunning || changingDirection) return;
+            const goingUp = dy === -tileSize;
+            const goingDown = dy === tileSize;
+            const goingRight = dx === tileSize;
+            const goingLeft = dx === -tileSize;
+
+            if (e.key === "ArrowLeft" && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
+            if (e.key === "ArrowUp" && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
+            if (e.key === "ArrowRight" && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
+            if (e.key === "ArrowDown" && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
+        });
 
         function updateFoodIcon() {
             scoreIconEl.textContent = optFoodType.value;
@@ -682,15 +709,15 @@
             loadLeaderboard();
         }
 
-        // --- FULLSCREEN FUNCTION ---
+        // --- UPDATED FULLSCREEN ASSIGNMENT ---
         function startGame() {
-            // Trigger browser fullscreen on the game board container element
-            if (board.requestFullscreen) {
-                board.requestFullscreen();
-            } else if (board.webkitRequestFullscreen) { /* Safari support */
-                board.webkitRequestFullscreen();
-            } else if (board.msRequestFullscreen) { /* IE11 support */
-                board.msRequestFullscreen();
+            // Trigger fullscreen on the whole game element container layout (stage) instead of just the canvas grid
+            if (stage.requestFullscreen) {
+                stage.requestFullscreen();
+            } else if (stage.webkitRequestFullscreen) {
+                stage.webkitRequestFullscreen();
+            } else if (stage.msRequestFullscreen) {
+                stage.msRequestFullscreen();
             }
 
             clearBoardElements();
@@ -758,7 +785,6 @@
 
         // --- EXIT FULLSCREEN DETECTOR ---
         document.addEventListener('fullscreenchange', () => {
-            // If user left full screen (via ESC key), stop game loop and show overlay menu
             if (!document.fullscreenElement) {
                 gameOver();
             }
@@ -852,208 +878,222 @@
                     spawnFoodItem();
                     spawnFoodItem();
                 } else {
-                    spawnFoodItem();
+                    if (isModeActive("key")) {
+                        isFruitUnlocked = false;
+                        spawnKeyItem();
+                        spawnFoodItem();
+                    } else {
+                        let currentCount = foodList.length;
+                        let wantedCount = parseInt(optFoodAmount.value);
+                        if (modifier === "twin") wantedCount += 1;
+                        while(currentCount < wantedCount) {
+                            spawnFoodItem();
+                            currentCount++;
+                        }
+                    }
                 }
-
-                if (isModeActive("wall")) {
-                    spawnObstacleItem();
-                }
-
-                if (isModeActive("key")) {
-                    isFruitUnlocked = false;
-                    spawnKeyItem();
-                }
-
-                if (modifier === "multi" && score % 2 === 0) {
-                    snake.pop();
+                if (modifier === "multi") {
+                    // Normal growth rate handled by unshifting head and skipping pop
                 }
             } else {
                 snake.pop();
             }
         }
 
+        function spawnFoodItem() {
+            let rx, ry;
+            while(true) {
+                rx = Math.floor(Math.random() * gridCount) * tileSize;
+                ry = Math.floor(Math.random() * gridCount) * tileSize;
+                let conflict = snake.some(part => part.x === rx && part.y === ry) ||
+                               foodList.some(f => f.x === rx && f.y === ry) ||
+                               obstacleList.some(o => o.x === rx && o.y === ry);
+                if (keyItem && keyItem.x === rx && keyItem.y === ry) conflict = true;
+                if (!conflict) break;
+            }
+            foodList.push({x: rx, y: ry});
+        }
+
+        function spawnKeyItem() {
+            let rx, ry;
+            while(true) {
+                rx = Math.floor(Math.random() * gridCount) * tileSize;
+                ry = Math.floor(Math.random() * gridCount) * tileSize;
+                let conflict = snake.some(part => part.x === rx && part.y === ry) ||
+                               foodList.some(f => f.x === rx && f.y === ry) ||
+                               obstacleList.some(o => o.x === rx && o.y === ry);
+                if (!conflict) break;
+            }
+            keyItem = {x: rx, y: ry};
+        }
+
+        function spawnObstacleItem() {
+            let rx, ry;
+            while(true) {
+                rx = Math.floor(Math.random() * gridCount) * tileSize;
+                ry = Math.floor(Math.random() * gridCount) * tileSize;
+                // Avoid snake start positions
+                let conflict = (rx < tileSize * 8 && ry === tileSize * 10) ||
+                               foodList.some(f => f.x === rx && f.y === ry) ||
+                               obstacleList.some(o => o.x === rx && o.y === ry);
+                if (!conflict) break;
+            }
+            obstacleList.push({x: rx, y: ry});
+        }
+
         function moveWingedFood() {
-            foodList.forEach(food => {
-                if (Math.random() < 0.20) {
+            foodList.forEach(fruit => {
+                if (Math.random() < 0.25) {
                     const dirs = [
                         {x: tileSize, y: 0}, {x: -tileSize, y: 0},
                         {x: 0, y: tileSize}, {x: 0, y: -tileSize}
                     ];
-                    const randomMove = dirs[Math.floor(Math.random() * dirs.length)];
-                    let newX = food.x + randomMove.x;
-                    let newY = food.y + randomMove.y;
-
-                    if (newX >= 0 && newX < gridCount * tileSize && newY >= 0 && newY < gridCount * tileSize) {
-                        let structuralCollision = obstacleList.some(o => o.x === newX && o.y === newY);
-                        let bodyCollision = snake.some(b => b.x === newX && b.y === newY);
-                        if (!structuralCollision && !bodyCollision) {
-                            food.x = newX;
-                            food.y = newY;
+                    const choice = dirs[Math.floor(Math.random() * dirs.length)];
+                    let nx = fruit.x + choice.x;
+                    let ny = fruit.y + choice.y;
+                    
+                    if (nx >= 0 && nx < gridCount * tileSize && ny >= 0 && ny < gridCount * tileSize) {
+                        let collision = snake.some(part => part.x === nx && part.y === ny) ||
+                                        obstacleList.some(o => o.x === nx && o.y === ny);
+                        if (!collision) {
+                            fruit.x = nx;
+                            fruit.y = ny;
                         }
                     }
                 }
             });
         }
 
-        function spawnFoodItem() {
-            let foodX, foodY;
-            while (true) {
-                foodX = Math.floor(Math.random() * gridCount) * tileSize;
-                foodY = Math.floor(Math.random() * gridCount) * tileSize;
-                let onSnake = snake.some(part => part.x === foodX && part.y === foodY);
-                let onObstacle = obstacleList.some(o => o.x === foodX && o.y === foodY);
-                let onOtherFood = foodList.some(f => f.x === foodX && f.y === foodY);
-                if (!onSnake && !onObstacle && !onOtherFood) break;
-            }
-            foodList.push({ x: foodX, y: foodY, icon: optFoodType.value });
-        }
-
-        function spawnObstacleItem() {
-            let obsX, obsY;
-            while (true) {
-                obsX = Math.floor(Math.random() * gridCount) * tileSize;
-                obsY = Math.floor(Math.random() * gridCount) * tileSize;
-                let onSnake = snake.some(part => part.x === obsX && part.y === obsY);
-                let onFood = foodList.some(f => f.x === obsX && f.y === obsY);
-                let onObstacle = obstacleList.some(o => o.x === obsX && o.y === obsY);
-                let nearHead = Math.abs(obsX - snake[0].x) <= tileSize * 2 && Math.abs(obsY - snake[0].y) <= tileSize * 2;
-                if (!onSnake && !onFood && !onObstacle && !nearHead) break;
-            }
-            obstacleList.push({ x: obsX, y: obsY });
-        }
-
-        function spawnKeyItem() {
-            let kX, kY;
-            while (true) {
-                kX = Math.floor(Math.random() * gridCount) * tileSize;
-                kY = Math.floor(Math.random() * gridCount) * tileSize;
-                let onSnake = snake.some(part => part.x === kX && part.y === kY);
-                let onFood = foodList.some(f => f.x === kX && f.y === kY);
-                let onObstacle = obstacleList.some(o => o.x === kX && o.y === kY);
-                if (!onSnake && !onFood && !onObstacle) break;
-            }
-            keyItem = { x: kX, y: kY };
-        }
-
         function drawSnake() {
             snake.forEach((part, index) => {
-                const element = document.createElement('div');
-                element.style.left = `${part.x}px`;
-                element.style.top = `${part.y}px`;
-                element.style.backgroundColor = optSnakeColor.value;
-                element.classList.add(index === 0 ? 'snake-head' : 'snake-body');
-                
+                const el = document.createElement('div');
+                el.classList.add(index === 0 ? 'snake-head' : 'snake-body');
+                el.style.left = `${part.x}px`;
+                el.style.top = `${part.y}px`;
+                el.style.backgroundColor = optSnakeColor.value;
+
                 if (index === 0) {
-                    element.textContent = "👀";
-                    element.style.fontSize = "16px";
+                    const eyeL = document.createElement('div');
+                    eyeL.style.position = 'absolute';
+                    eyeL.style.width = '5px'; eyeL.style.height = '5px';
+                    eyeL.style.backgroundColor = 'white'; eyeL.style.borderRadius = '50%';
                     
-                    const accessory = optAccessory.value;
-                    if (accessory) {
+                    const eyeR = eyeL.cloneNode();
+                    
+                    if (dx === tileSize) { // Right
+                        eyeL.style.top = '5px'; eyeL.style.right = '5px';
+                        eyeR.style.bottom = '5px'; eyeR.style.right = '5px';
+                    } else if (dx === -tileSize) { // Left
+                        eyeL.style.top = '5px'; eyeL.style.left = '5px';
+                        eyeR.style.bottom = '5px'; eyeR.style.left = '5px';
+                    } else if (dy === -tileSize) { // Up
+                        eyeL.style.top = '5px'; eyeL.style.left = '5px';
+                        eyeR.style.top = '5px'; eyeR.style.right = '5px';
+                    } else if (dy === tileSize) { // Down
+                        eyeL.style.bottom = '5px'; eyeL.style.left = '5px';
+                        eyeR.style.bottom = '5px'; eyeR.style.right = '5px';
+                    }
+                    el.appendChild(eyeL); el.appendChild(eyeR);
+
+                    // Add Accessory if selected
+                    const acc = optAccessory.value;
+                    if (acc) {
                         const accSlot = document.createElement('div');
                         accSlot.classList.add('accessory-slot');
-                        accSlot.textContent = accessory;
-                        element.appendChild(accSlot);
+                        accSlot.textContent = acc;
+                        el.appendChild(accSlot);
                     }
                 }
-                board.appendChild(element);
+                board.appendChild(el);
             });
         }
 
         function drawFood() {
-            foodList.forEach(food => {
-                const element = document.createElement('div');
-                element.classList.add('food-item');
-                element.style.left = `${food.x}px`;
-                element.style.top = `${food.y}px`;
-                element.textContent = isModeActive("key") && !isFruitUnlocked ? "🔒" : food.icon;
-                board.appendChild(element);
+            foodList.forEach((fruit, idx) => {
+                const el = document.createElement('div');
+                el.classList.add('food-item');
+                el.style.left = `${fruit.x}px`;
+                el.style.top = `${fruit.y}px`;
+                if (isModeActive("key") && !isFruitUnlocked) {
+                    el.textContent = "🔒";
+                } else {
+                    if (isModeActive("portal")) {
+                        el.textContent = idx === 0 ? "🔵" : "🟠";
+                    } else {
+                        el.textContent = optFoodType.value;
+                    }
+                }
+                board.appendChild(el);
             });
 
             if (isModeActive("key") && keyItem) {
-                const element = document.createElement('div');
-                element.classList.add('key-item');
-                element.style.left = `${keyItem.x}px`;
-                element.style.top = `${keyItem.y}px`;
-                element.textContent = "🔑";
-                board.appendChild(element);
+                const el = document.createElement('div');
+                el.classList.add('key-item');
+                el.style.left = `${keyItem.x}px`;
+                el.style.top = `${keyItem.y}px`;
+                el.textContent = "🔑";
+                board.appendChild(el);
             }
         }
 
         function drawObstacles() {
             obstacleList.forEach(obs => {
-                const element = document.createElement('div');
-                element.classList.add('obstacle-item');
-                element.style.left = `${obs.x}px`;
-                element.style.top = `${obs.y}px`;
-                element.textContent = "🧱";
-                board.appendChild(element);
+                const el = document.createElement('div');
+                el.classList.add('obstacle-item');
+                el.style.left = `${obs.x}px`;
+                el.style.top = `${obs.y}px`;
+                el.textContent = "🧱";
+                board.appendChild(el);
             });
         }
 
         function updateLightRadius() {
-            const head = snake[0];
-            const maskRadius = 110; 
-            lightMask.style.background = `radial-gradient(circle ${maskRadius}px at ${head.x + tileSize/2}px ${head.y + tileSize/2}px, transparent 100%, rgba(0,0,0,0.96) 100%)`;
+            if (snake.length === 0) return;
+            const hX = snake[0].x + tileSize/2;
+            const hY = snake[0].y + tileSize/2;
+            lightMask.style.background = `radial-gradient(circle 95px at ${hX}px ${hY}px, transparent 100%, rgba(0,0,0,0.96) 100%)`;
         }
 
         function hasGameEnded() {
-            if (!gameRunning) return false;
+            if (isModeActive("peaceful")) return false;
             const head = snake[0];
 
-            if (!isModeActive("infinite") && !isModeActive("peaceful")) {
-                const hitLeft = head.x < 0;
-                const hitRight = head.x >= gridCount * tileSize;
-                const hitTop = head.y < 0;
-                const hitBottom = head.y >= gridCount * tileSize;
-                if (hitLeft || hitRight || hitTop || hitBottom) return true;
+            // Wall collisions (Only matters if NOT inside Infinite/Peaceful layouts)
+            if (!isModeActive("infinite")) {
+                if (head.x < 0 || head.x >= gridCount * tileSize || head.y < 0 || head.y >= gridCount * tileSize) {
+                    return true;
+                }
             }
 
-            if (!isModeActive("peaceful")) {
-                for (let i = 1; i < snake.length; i++) {
-                    if (head.x === snake[i].x && head.y === snake[i].y) return true;
-                }
-                const hitObstacle = obstacleList.some(o => o.x === head.x && o.y === head.y);
-                if (hitObstacle) return true;
+            // Self Tail collisions
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) return true;
             }
+
+            // Wall block obstacle collisions
+            const hitObstacle = obstacleList.some(o => o.x === head.x && o.y === head.y);
+            if (hitObstacle) return true;
+
             return false;
         }
 
         function gameOver() {
-            if (!gameRunning) return;
             gameRunning = false;
             clearInterval(gameInterval);
-            
-            // Safely exit fullscreen mode if the browser is currently locked into it
             if (document.fullscreenElement) {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                document.exitFullscreen().catch(() => {});
             }
-
+            lightMask.style.display = 'none';
             overlayText.textContent = "Game Over";
             overlay.style.display = 'flex';
             nameInputBox.style.display = 'flex';
-            startBtn.textContent = "Play Again";
             saveScoreToLeaderboard(score);
         }
 
-        // Event Handling Mechanisms
-        window.addEventListener('keydown', e => {
-            if (!gameRunning || changingDirection) return;
-            const key = e.key;
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingRight = dx === tileSize;
-            const goingLeft = dx === -tileSize;
-
-            if ((key === 'ArrowLeft' || key === 'a' || key === 'A') && !goingRight) { dx = -tileSize; dy = 0; changingDirection = true; }
-            if ((key === 'ArrowUp' || key === 'w' || key === 'W') && !goingDown) { dx = 0; dy = -tileSize; changingDirection = true; }
-            if ((key === 'ArrowRight' || key === 'd' || key === 'D') && !goingLeft) { dx = tileSize; dy = 0; changingDirection = true; }
-            if ((key === 'ArrowDown' || key === 's' || key === 'S') && !goingUp) { dx = 0; dy = tileSize; changingDirection = true; }
-        });
-
-        // Initialize setup logic on load execution
+        // Init Setup elements
         populateFoodDropdown();
         updateMapTheme();
+        updateStyles();
         updateFoodIcon();
         loadLeaderboard();
     </script>
